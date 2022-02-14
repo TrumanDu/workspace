@@ -20,7 +20,7 @@
 
 ### equals() 与 ==
 
-== : 它的作用是判断两个对象的地址是不是相等。即，判断两个对象是不试同一个对象。
+== : 它的作用是判断两个对象的地址是不是相等。即，判断两个对象是不是同一个对象。
 
 equals() : 它的作用也是判断两个对象是否相等。但它一般有两种使用情况(前面第1部分已详细介绍过)：
 
@@ -67,19 +67,15 @@ static final int hash(Object key) {
 
 数组+双向循环链表
 
-#### ConcurrentHashMap
-
-//TODO
-
 更多查看[**Java集合框架常见面试题**](https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/collection/Java%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 ## 线程
 
 在Java中有两类线程：User Thread(用户线程)、Daemon Thread(守护线程)
 
-守护线程，随着用户线程的死亡而死亡，当用户线程死完了守护线程也死了。
-
 用户线程，不随着其他人的死亡而死亡，只有两种情况死掉，1.在run中异常终止，2.正常把run执行完毕。
+
+守护线程，随着用户线程的死亡而死亡，当用户线程死完了守护线程也死了。
 
 ### 线程状态
 
@@ -139,7 +135,7 @@ ExecutorService executorService = new ThreadPoolExecutor(10,20,50, TimeUnit.MILL
 
 ### synchronized
 
-实例锁（修饰实例方法），class 锁（修饰静态方法），同步代码块（实例锁）
+实例锁（修饰实例方法），同步代码块（实例锁），class 锁（修饰静态方法）
 
 synchronized具有可重入性
 ```
@@ -184,7 +180,18 @@ ReentrantReadWriteLock 读-读能共存，读-写不能共存，写-写不能共
 
 ## 并发容器
 
-ConcurrentHashMap
+### ConcurrentHashMap
+
+`CAS + synchronized`
+
+put 流程
+
+- 根据 key 计算出 hashcode 。
+- 判断是否需要进行初始化。
+- `f` 即为当前 key 定位出的 Node，如果为空表示当前位置可以写入数据，利用 CAS 尝试写入，失败则自旋保证成功。
+- 如果当前位置的 `hashcode == MOVED == -1`,则需要进行扩容。
+- 如果都不满足，则利用 synchronized 锁写入数据。
+- 如果数量大于 `TREEIFY_THRESHOLD=8` 则要转换为红黑树。
 
 CopyOnWriteArrayList
 
