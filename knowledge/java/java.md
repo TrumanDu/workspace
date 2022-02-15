@@ -1,6 +1,6 @@
 # Java基础
 
-## Java内存模型
+## JVM内存分区
 
 - 程序计数器
 - 堆
@@ -8,7 +8,11 @@
 - 元空间（存类和类加载器的元数据）
 - 虚拟机栈
 
+## Java内存模型
 
+调用栈和本地变量存放在线程栈上，对象存放在堆上。[<sup>1</sup>](#reference)
+
+![](https://pic3.zhimg.com/80/v2-af520d543f0f4f205f822ec3b151ad46_720w.jpg)
 
 ## JVM内存回收算法
 
@@ -200,3 +204,10 @@ ConcurrentLinkedQueue
 ThreadLocal
 
 BlockingQueue
+
+<div id="reference"></div>
+
+## 参考
+
+[1] [Java内存模型（JMM）总结](https://zhuanlan.zhihu.com/p/29881777)
+
