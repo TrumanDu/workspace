@@ -10,3 +10,4 @@
 
 ## 参考
 
+1. [How to use Kafka Connect - Getting Started](https://docs.confluent.io/home/connect/self-managed/userguide.html)

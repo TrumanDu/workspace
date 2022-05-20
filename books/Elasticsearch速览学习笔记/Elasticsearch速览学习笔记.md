@@ -4,8 +4,6 @@
 
 **如果没钱没时间，收藏我这边篇笔记就好。如果你舍得花钱，有充足的时间，推荐去购买一下他的知识星球。**
 
-
-
 ## 基本知识点
 
 ### 分词必知
@@ -25,8 +23,6 @@ POST _analyze
   "text":     "The quick brown fox. 1"
 }
 ```
-
-
 
 #### 排查当前index分词的结果
 
@@ -87,8 +83,6 @@ POST my-index-000001/_analyze
 // [ old, brown, cow ]
 ```
 
-
-
 ### Mapping必知
 
 为了避免Mapping爆炸，默认最多字段数`index.mapping.total_fields.limit:1000`包含字段别名。也就意味着默认情况下，一个index最多1000个字段（Field and object）。
@@ -122,7 +116,7 @@ PUT _template/truman_template
             "ignore_above" : 256
           }
         }
-        
+
       },
       "rawData":{
         "type": "keyword", 
@@ -185,11 +179,11 @@ PUT my-index-000001
 
 在es中可以定义字段为join类型，实现类似于关系型数据库的多表关联查询。但是es父子文档还是存储在一个index下的。
 
->1. 每个索引只允许一个Join类型Mapping定义；
->2. 父文档和子文档必须在同一个分片上编入索引；这意味着，当进行删除、更新、查找子文档时候需要提供相同的路由值。
->3. 一个文档可以有多个子文档，但只能有一个父文档。
->4. 可以为已经存在的Join类型添加新的关系。
->5. 当一个文档已经成为父文档后，可以为该文档添加子文档。
+> 1. 每个索引只允许一个Join类型Mapping定义；
+> 2. 父文档和子文档必须在同一个分片上编入索引；这意味着，当进行删除、更新、查找子文档时候需要提供相同的路由值。
+> 3. 一个文档可以有多个子文档，但只能有一个父文档。
+> 4. 可以为已经存在的Join类型添加新的关系。
+> 5. 当一个文档已经成为父文档后，可以为该文档添加子文档。
 
 #### join定义
 
@@ -261,8 +255,6 @@ PUT knownledge/_doc/5?routing=1&refresh
 }
 ```
 
-
-
 #### 根据父查询所有的子文档
 
 查询父id为1下的所有子文档。注意这里是父id，我这边例子业务id于index id是一致的。其实可以不一致。
@@ -277,7 +269,6 @@ GET knownledge/_search
     }
   }
 }
-
 ```
 
 查询符合父文档下的子文档
@@ -298,8 +289,6 @@ GET knownledge/_search
 }
 ```
 
-
-
 #### 根据子查询所有的父文档
 
 ```
@@ -317,8 +306,6 @@ GET knownledge/_search
   }
 }
 ```
-
-
 
 ### Nested类型及应用
 
@@ -423,8 +410,6 @@ PUT truman-003
 }
 ```
 
-
-
 更新别名
 
 ```
@@ -466,8 +451,6 @@ GET /my-index-000001
 
 DELETE /my-index-000001
 ```
-
-
 
 ### 文档必知
 
@@ -516,8 +499,6 @@ shard = hash(document_id) % (num_of_primary_shards)
 
 第六步：flush 触发的时机是定时触发（默认 30 分钟）或者 translog 变得太大（默认为 512 M）时。
 
-
-
 #### 文档删除和更新的本质
 
 删除和更新也都是写操作，但是 Elasticsearch 中的文档是不可变的，因此不能被删除或者改动以展示其变更。
@@ -547,7 +528,7 @@ shard = hash(document_id) % (num_of_primary_shards)
 创建一个布尔查询，将与每个词匹配的词查询作为词查询，但最后一个词除外，后者作为前缀查询匹配。这里和match_phrase_prefix有点区别。前者不在意顺序，后者严格的词组顺序。
 
 - **match_phrase/match_phrase_prefix**
-
+  
     match_phrase用于匹配精确短语或单词接近匹配。match_phrase_prefix 前缀短语匹配查询
 
 - **multi_match**
@@ -565,8 +546,6 @@ GET /_search
   }
 }
 ```
-
-
 
 - **query_string/simple_query_string**
 
@@ -658,7 +637,7 @@ GET test/_search
 
 terms_set和terms类似，但是支持设置要求minimum_should_match_field。
 
-````
+```
 POST test/_doc
 {
   "user":"ddd",
@@ -676,9 +655,9 @@ GET test/_search
     }
   }
 }
-````
+```
 
-###### wildcard 
+###### wildcard
 
 通配符查找
 
@@ -696,8 +675,6 @@ GET /_search
   }
 }
 ```
-
-
 
 #### 高亮/分页/排序
 
@@ -727,7 +704,7 @@ GET test/_search
 ##### 分页
 
 - from+size 深度分页性能较差
-
+  
   ```
   GET test/_search?from=0&size=5
   {
@@ -736,22 +713,20 @@ GET test/_search
   ```
 
 - scroll
-
+  
   ```
   GET test*/_search?scroll=2m&size=3
   {
     "query": {"match_all": {}}
   }
   ```
-
+  
   ```
   GET _search/scroll
   {
     "scroll_id" : "DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAcDFllrSTUzWlEzUUFtTnlGY3czWVJlRmcAAAAAAAAHAhZZa0k1M1pRM1FBbU55RmN3M1lSZUZnAAAAAAAABwEWWWtJNTNaUTNRQW1OeUZjdzNZUmVGZwAAAAAAAAcEFllrSTUzWlEzUUFtTnlGY3czWVJlRmcAAAAAAAAHBRZZa0k1M1pRM1FBbU55RmN3M1lSZUZn"
   }
   ```
-
-  
 
 #### Query和Filter的本质区别
 
@@ -805,8 +780,6 @@ GET test/_search/template
 }
 ```
 
-
-
 ### 聚合必知
 
 聚合分3大类：
@@ -845,8 +818,6 @@ POST pipeline-index/_doc?pipeline=add_timestap_pipeline
   "age":"19"
 }
 ```
-
-
 
 #### 删除符合条件的文档
 
@@ -1057,8 +1028,6 @@ POST _reindex
 }
 ```
 
-
-
 #### 集群优化
 
 **部署层面：**
@@ -1126,7 +1095,6 @@ POST _reindex
 详细信息参考[Elasticsearch存储深入详解](https://mp.weixin.qq.com/s?__biz=MzI2NDY1MTA3OQ%3D%3D&chksm=eaa82b23dddfa23576681118838761947955a05bbac35e42883ed54b81a193141837971c5fd7&idx=1&mid=2247484171&scene=21&sn=985a71a4f2fff5233b1803fa6e8bb9db#wechat_redirect)
 
 ## 资源
-
 
 1. [好奇？！Elasticsearch 25 个必知必会的默认值](https://blog.csdn.net/laoyang360/article/details/106464359)
 2. [重磅 | 死磕 Elasticsearch 方法论认知清单（2020年国庆更新版）](https://elastic.blog.csdn.net/article/details/108839580)
