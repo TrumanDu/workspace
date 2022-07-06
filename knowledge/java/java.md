@@ -205,7 +205,8 @@ ThreadLocal
 
 BlockingQueue
 
-<div id="reference"></div>
+## 资源
+1. [聊聊JVM](https://mp.weixin.qq.com/s?__biz=MzkwNjMwMTgzMQ==&mid=2247495919&idx=1&sn=71010d91e376270afc31bbe61c8326aa&chksm=c0e82807f79fa111d7c339832f48c9542d5fc1540c1a619c1a3281040fc1631616e016d0dc36&mpshare=1&scene=1&srcid=0629v5c0bjrW8BO2PNq5rAZc&sharer_sharetime=1656463160600&sharer_shareid=8bd71a4056686012698a4daf0af0595e#rd)
 
 ## 参考
 
