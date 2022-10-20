@@ -1,0 +1,188 @@
+# kafka那些事
+
+## 开场白
+
+![image-20220920193453784](http://static.trumandu.top/image-20220920193453784.png)
+
+大家好，很荣幸收到西安 GDG社区的邀请，来做一场有关kafka的分享。
+
+我今天分享的话题是《kafka那些事》，主要内容是关于kafka技术入门分享，说说它的生态，讲讲自己的生产实践经验。
+
+在正式开始之前，我想了解一下大家做后端的都有哪些？请举手。前端呢？
+
+## 自我介绍
+
+![image-20220920193535228](http://static.trumandu.top/image-20220920193535228.png)
+
+在开始之前，先做个简单的自我介绍，我叫杜鹏岩，目前是Newegg架构师，同时也是西安IT技术圈社区发起人，主要关注于软件架构，中间件平台类开发，大数据基础架构等相关工作。
+
+这里有我的公众号和我们社区的公众号，感兴趣的可以关注一波。
+
+自己也开源了一些项目，做的比较好的有vs code 插件43k下载，给kibana贡献过代码，自己开源的kafka平台KafkaCenter在github上也有1k星。
+
+总结一下：是一个喜欢开源，热爱分享，希望多和大家交流学习。
+
+## MQ
+
+![image-20220920193601713](http://static.trumandu.top/image-20220920193601713.png)
+
+在开始介绍kafka之前，先简单介绍一下MQ,大家都是程序员，学习数据结构的时候，应该都了解过先进先出的队列。
+
+MQ的架构可以抽象的认为由生产者，Broker，消费者等角色组成，
+
+在做架构选择时，通常我们会选择MQ来解决两个问题：**异步架构**，**系统解耦**（解耦是为了更容易扩展和架构演进）
+
+解决高并发的时候，会想起：**削峰填谷**
+
+除此之外还有两种业务场景：
+
+- 消息通讯（一对一，一对多广播）
+- 数据管道
+
+![image-20220920193642808](http://static.trumandu.top/image-20220920193642808.png)
+
+了解了MQ解决的场景，大家有没有想过MQ所解决了哪些技术性问题？
+
+我这边总结了几个具有代表性的技术问题：
+
+- 顺序性
+- 异步性
+- 广播性
+- 可堆积性
+- 可恢复性（重塑性）
+
+## Kafka
+
+![image-20220920193746609](http://static.trumandu.top/image-20220920193746609.png)
+
+说几个八卦，大家知道为什么叫kafka吗？
+
+据说kafla架构师 **jay kreps** 所讲，由于他本人很喜欢kafka,并且觉得这个名字很酷。已经成为大数据基础组件之一，使用范围之广。
+
+这群kafka开发者中有几个国人：饶军，王国章
+
+言归正传：kafka 是一个分布式消息队列，更是一个流处理平台。
+
+主要由Producer,Broker，Consumer三个角色组成，生产者将消息push到broker上，消费者再从broker拉取消息。
+
+图上还有一个重要组件：zookeeper,作为集群分布式协调者和元数据管理者。但未来是注定要去掉该组件的，目前最新版已经支持不需要zookeeper，支持独立运行，但还未达到生产就绪阶段。kafka有这么几个优点：
+
+- ⾼吞吐
+- 消息持久化
+- 负载均衡
+- 故障转移
+
+
+
+## Topic & 日志目录结构
+
+![image-20220920193810076](http://static.trumandu.top/image-20220920193810076.png)
+
+接下来简单给大家介绍一下Topic逻辑结构，Topic由多个partition组成，每个partition又有多个replica构成。
+
+![image-20220920193831457](http://static.trumandu.top/image-20220920193831457.png)
+
+在服务器端Topic结构是这样的，name-序列号，每个topic的partition都由多个LogSement组成，LogSement是一个抽象结构，由.log,.index,.timeinde等文件组成
+
+
+
+## 数据可靠性
+
+![image-20220920193853397](http://static.trumandu.top/image-20220920193853397.png)
+
+大家有没有想过？kakfa怎么保证数据的可靠呢？它的可靠程度可以高度自定义，通过`acks`来制定。Producer 要在吞吐率和数据可靠性之间做一个权衡
+
+## 数据一致性
+
+![image-20220920193943160](http://static.trumandu.top/image-20220920193943160.png)
+
+kafka是一个分布式系统，它是怎么保证在多个副本间数据一致呢？答案是：HW,副本同步机制，以及Leader Epoch，这个就比较复杂了，我们就不做过多解释。
+
+简称 HW: Partition 的高水位，取一个 partition 对应的 ISR 中最小的 LEO(LogEndOffset)作为 HW，消费者最多只能消费到 HW 所在的位置，另外每个 replica 都有 HW，leader 和 follower 各自负责更新自己的 HW 状态，HW<= leader. LEO
+
+Consumer 不能立刻消费，Leader 会等待该消息被所有 ISR 中的 replica 同步后,更新 HW,此时该消息才能被 Consumer 消费，即 Consumer 最多只能消费到 HW 位置
+
+这样就保证了如果 Leader Broker 失效,该消息仍然可以从新选举的 Leader 中获取。对于来自内部 Broker 的读取请求,没有 HW 的限制。同时,Follower 也会维护一份自己的 HW,Folloer.HW = min(Leader.HW, Follower.offset)
+
+![image-20220920194008257](http://static.trumandu.top/image-20220920194008257.png)
+
+## kafka高性能设计
+
+![image-20220920194030904](http://static.trumandu.top/image-20220920194030904.png)
+
+关于kakfa的核心设计，我们再聊聊它的高性能设计，它主要从两个方面来设计：。。。。
+
+## 生产者最佳实践
+
+![image-20220920194238111](http://static.trumandu.top/image-20220920194238111.png)
+
+![image-20220920194301320](http://static.trumandu.top/image-20220920194301320.png)
+
+![image-20220920194328567](http://static.trumandu.top/image-20220920194328567.png)
+
+## 消费者最佳实践
+
+![image-20220920194346196](http://static.trumandu.top/image-20220920194346196.png)
+
+![image-20220920194403630](http://static.trumandu.top/image-20220920194403630.png)
+
+![image-20220920194428847](http://static.trumandu.top/image-20220920194428847.png)
+
+![image-20220920194452810](http://static.trumandu.top/image-20220920194452810.png)
+
+![image-20220920194514540](http://static.trumandu.top/image-20220920194514540.png)
+
+## kafka connect
+
+![image-20220920194537442](http://static.trumandu.top/image-20220920194537442.png)
+
+kafka-connect是一个在kafka与其他平台数据迁移的工具。
+
+kafka-connect有两个核心概念：Source和Sink。Source:负责导入数据到kafka，Sink负责从kafka导出数据，它们统称Connector，即连接器。
+
+另外还有两个重要概念：Task和Worker
+
+## kafka streams
+
+![image-20220920194558293](http://static.trumandu.top/image-20220920194558293.png)
+
+Kafka Streams被认为是开发实时应用程序的最简单方法。它是一个Kafka的客户端API库，编写简单的java和scala代码就可以实现流式处理。不同于storm/spark,它是以应用服务形式存在的。
+
+![image-20220920194616353](http://static.trumandu.top/image-20220920194616353.png)
+
+## ksqlDB
+
+![image-20220920194646338](http://static.trumandu.top/image-20220920194646338.png)
+
+## kafka rest proxy
+
+![image-20220920194716186](http://static.trumandu.top/image-20220920194716186.png)
+
+## Kafka Scheme Registry
+
+![image-20220920194751904](http://static.trumandu.top/image-20220920194751904.png)
+
+## kafka tool
+
+![image-20220920194815348](http://static.trumandu.top/image-20220920194815348.png)
+
+kafka center是一个集Topic申请，监控，集群监控与运维等一站式平台。
+
+
+
+![image-20220920194841857](http://static.trumandu.top/image-20220920194841857.png)
+
+主要解决这个6个问题
+
+统一：一个平台，一站式包含Topic自助，管理，监控，运维，使用一体化。
+
+流程化：创建topic流程化，做到对topic使用全生命周期管理。
+
+治理：将Topic资源申请管控，公司所有集群统一管控。
+
+生态：目前已经接入connect，ksql。
+
+便捷：提供便捷工具，让无需有kafka使用经验的人，都可以方便生产、消费消息。
+
+规范化：将指标可视化，申请流程化，运维标准化。
+
