@@ -58,7 +58,17 @@ my.server:
 
 为了让spring 容器可以识别该配置类，有多种方式，这里我推荐在启动类上添加注解`@ConfigurationPropertiesScan({"top.trumandu.config"})`
 
-配置参数
+**配置参数**
+
+Spring（relaxed binding ）使用一些宽松的绑定属性规则。因此，以下变体都将绑定到 hostName 属性上:
+
+```
+mail.hostName=localhost
+mail.hostname=localhost
+mail.host_name=localhost
+mail.host-name=localhost
+mail.HOST_NAME=localhost
+```
 
 
 
