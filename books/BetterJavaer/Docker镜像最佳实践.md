@@ -152,7 +152,9 @@ ENTRYPOINT [ "exec","/jre/bin/java", "-jar", "/app/app.jar" ]
 
 ## Native Image
 
-//TODO
+使用native image可以极大的减少镜像大小，启动时间，占用内存，因此如果项目可以接入native image,建议优先接入。
+
+具体文档可参考：[NativeImage](./NativeImage.md)
 
 ## 参考
 
