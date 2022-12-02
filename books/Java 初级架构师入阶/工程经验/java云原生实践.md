@@ -1,4 +1,11 @@
-# Native Image
+---
+group:
+  title: 工程经验
+  order: 3
+order: 3
+---
+
+# java 云原生实践
 
 借助于GraalVM和springboot 3 ，我们可以将java应用编译成native image，脱离jre单独运行。
 
@@ -305,4 +312,3 @@ class ReflectionRunner implements ApplicationRunner {
 1. [使用Graalvm简单编译native-image](https://blog.csdn.net/qq_26212181/article/details/121418452?spm=1001.2101.3001.6650.1)
 2. [Visual Studio 2019 配置 MSVC 环境变量，使用命令行编译](https://www.jianshu.com/p/7fab25165f4b)
 3. [demo-aot-native](https://github.com/snicoll/demo-aot-native)
-
