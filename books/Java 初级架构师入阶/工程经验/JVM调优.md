@@ -215,3 +215,8 @@ jdk8
 ```
 jmap -dump:format=b,file=/temp/kafka-streams/logs/dump.log 1
 ```
+### JMX
+
+```
+-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=66666 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+```
