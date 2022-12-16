@@ -29,7 +29,7 @@ I'm **TrumanDu**, a programmer at XI'AN.
 
 ## 书籍
 
-[书籍列表](books/README.md)
+[书籍列表](http://book.trumandu.top/)
 
 ## 知识库
 
