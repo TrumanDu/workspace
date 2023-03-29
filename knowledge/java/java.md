@@ -172,7 +172,7 @@ ReentrantLock和ReentrantReadWriteLock 都是可重入锁
 
 ReentrantLock默认是非公平锁，通过构建函数参数true可以设置为公平锁。
 
-ReentrantLock具有可重入性,可支持公平锁与非公平锁，支持响应中断
+ReentrantLock具有可重入性,可支持公平锁与非公平锁，支持响应中断。
 
 ReentrantReadWriteLock 读-读能共存，读-写不能共存，写-写不能共存(读锁读写互斥，写锁，写写互斥)
 
