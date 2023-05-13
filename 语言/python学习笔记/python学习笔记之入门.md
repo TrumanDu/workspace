@@ -1,4 +1,4 @@
-# python 入门笔记
+# python 学习笔记之入门
 
 ## 数据类型及流程结构
 
@@ -349,8 +349,173 @@ m1.foo()    # hello, world!
 f1()    # hello, world!
 ```
 
+### 装饰器
+```python
+import random
+import time
+
+from functools import wraps
+
+
+def record_time(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f'{func.__name__}执行时间: {end - start:.3f}秒')
+        return result
+
+    return wrapper
+
+
+@record_time
+def download(filename):
+    print(f'开始下载{filename}.')
+    time.sleep(random.randint(2, 6))
+    print(f'{filename}下载完成.')
+
+
+@record_time
+def upload(filename):
+    print(f'开始上传{filename}.')
+    time.sleep(random.randint(4, 8))
+    print(f'{filename}上传完成.')
+
+
+download('MySQL从删库到跑路.avi')
+upload('Python从入门到住院.pdf')
+# 取消装饰器
+download.__wrapped__('MySQL必知必会.pdf')
+upload = upload.__wrapped__
+upload('Python从新手到大师.pdf')
+```
+
 
 ## 面向对象
+
+### 定义
+```
+class Student:
+    """学生"""
+
+    def __init__(self, name, age):
+        """初始化方法"""
+        self.name = name
+        self.__age = age
+
+    def study(self, course_name):
+        """学习"""
+        print(f'{self.name}正在学习{course_name}.')
+
+    def play(self):
+        """玩耍"""
+        print(f'{self.name}正在玩游戏.')
+
+    def __repr__(self):
+        """类似于java中toString方法，将对象内容按如下输出"""
+        return f'{self.name}: {self.age}'
+
+
+stu1 = Student('truman', 18)
+
+```
+__age表示一个私有属性
+
+
+### 进阶
+```python
+class Student:
+
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    # 属性访问器(getter方法) - 获取__name属性
+    @property
+    def name(self):
+        return self.__name
+    
+    # 属性修改器(setter方法) - 修改__name属性
+    @name.setter
+    def name(self, name):
+        # 如果name参数不为空就赋值给对象的__name属性
+        # 否则将__name属性赋值为'无名氏'，有两种写法
+        # self.__name = name if name else '无名氏'
+        self.__name = name or '无名氏'
+    
+    @property
+    def age(self):
+        return self.__age
+
+
+stu = Student('王大锤', 20)
+print(stu.name, stu.age)    # 王大锤 20
+```
+通过一个@符号表示将装饰器应用于类、函数或方法
+
+### 静态方法和类方法
+```python
+    @staticmethod
+    def is_valid(a, b, c):
+        """判断三条边长能否构成三角形(静态方法)"""
+        return a + b > c and b + c > a and a + c > b
+
+    @classmethod
+    def is_valid(cls, a, b, c):
+        """判断三条边长能否构成三角形(类方法)"""
+        return a + b > c and b + c > a and a + c > b
+```
+
+### 继承与多态
+```python
+class Person:
+    """人类"""
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def eat(self):
+        print(f'{self.name}正在吃饭.')
+    
+    def sleep(self):
+        print(f'{self.name}正在睡觉.')
+
+
+class Student(Person):
+    """学生类"""
+    
+    def __init__(self, name, age):
+        # super(Student, self).__init__(name, age)
+        super().__init__(name, age)
+    
+    def study(self, course_name):
+        print(f'{self.name}正在学习{course_name}.')
+
+
+class Teacher(Person):
+    """老师类"""
+
+    def __init__(self, name, age, title):
+        # super(Teacher, self).__init__(name, age)
+        super().__init__(name, age)
+        self.title = title
+    
+    def teach(self, course_name):
+        print(f'{self.name}{self.title}正在讲授{course_name}.')
+```
+
+### 枚举类
+```pyton
+from enum import Enum
+
+
+class Suite(Enum):
+    """花色(枚举)"""
+    SPADE, HEART, CLUB, DIAMOND = range(4)
+```
 
 ## 进程和线程
 
