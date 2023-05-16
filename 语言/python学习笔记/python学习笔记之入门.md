@@ -517,9 +517,114 @@ class Suite(Enum):
     SPADE, HEART, CLUB, DIAMOND = range(4)
 ```
 
-## 进程和线程
+## 线程
+
+方式一：通过继承 Thread 类创建线程
+```python
+import threading
+
+# 自定义线程类
+class MyThread(threading.Thread):
+    def run(self):
+        print("Hello from thread")
+
+# 创建线程实例并启动线程
+thread = MyThread()
+thread.start()
+```
+方式二：通过传递函数创建线程
+
+```python
+import threading
+
+# 线程执行的函数
+def my_function():
+    print("Hello from thread")
+
+# 创建线程实例并启动线程
+thread = threading.Thread(target=my_function)
+thread.start()
+
+```
+方式三：使用线程池
+```python
+import concurrent.futures
+
+# 线程执行的函数
+def my_function():
+    print("Hello from thread")
+
+# 创建线程池
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    # 提交任务给线程池
+    future = executor.submit(my_function)
+    # 获取任务的结果
+    result = future.result()
+
+```
+
 
 ## 文件与异常
+### 读写文件
+```python
+file = open('致橡树.txt', 'r', encoding='utf-8')
+for line in file:
+    print(line, end='')
+file.close()
+
+file = open('致橡树.txt', 'r', encoding='utf-8')
+lines = file.readlines()
+for line in lines:
+    print(line, end='')
+file.close()
+
+file = open('致橡树.txt', 'a', encoding='utf-8')
+file.write('\n标题：《致橡树》')
+file.write('\n作者：舒婷')
+file.write('\n时间：1977年3月')
+file.close()
+```
+大文件读取
+```python
+try:
+    with open('guido.jpg', 'rb') as file1, open('吉多.jpg', 'wb') as file2:
+        data = file1.read(512)
+        while data:
+            file2.write(data)
+            data = file1.read()
+except FileNotFoundError:
+    print('指定的文件无法打开.')
+except IOError:
+    print('读写文件时出现错误.')
+print('程序执行结束.')
+```
+
+
+### 异常
+
+python中所有的异常都是`BaseException`的子类型，它有四个直接的子类，分别是：`SystemExit`、`KeyboardInterrupt`、`GeneratorExit`和`Exception`。其中，SystemExit表示解释器请求退出，KeyboardInterrupt是用户中断程序执行（按下Ctrl+c），GeneratorExit表示生成器发生异常通知退出。
+
+```python
+# 定义自定义异常类
+class MyException(Exception):
+    pass
+
+# 抛出自定义异常
+raise MyException("This is a custom exception")
+
+# 定义自定义异常类
+class MyException(Exception):
+    def __init__(self, message, code):
+        super().__init__(message)
+        self.code = code
+
+    def get_code(self):
+        return self.code
+
+# 抛出自定义异常
+raise MyException("This is a custom exception", 1001)
+
+```
 
 
 ## 参考
