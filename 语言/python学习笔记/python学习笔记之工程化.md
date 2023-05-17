@@ -108,5 +108,3 @@ class Configure:
 conf = Configure()
 hbase_param = conf.map_parameters["hbase"]
 ```
-
-## 可视化
