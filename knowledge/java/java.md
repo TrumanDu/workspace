@@ -205,6 +205,8 @@ ReentrantReadWriteLock 读-读能共存，读-写不能共存，写-写不能共
 
 //TODO
 
+更多信息详见：[深入理解 Java 并发锁](https://dunwu.github.io/javacore/concurrent/Java%E9%94%81.html)
+
 ## 并发容器
 
 ### ConcurrentHashMap
