@@ -6,20 +6,23 @@
 
 `Install Docker Compose v2.14.0 or newer on your workstation.`
 
-这里记录一下我在ubuntu里升级方法。
-首先升级相应的docker版本
+这里记录一下我在 ubuntu 里升级方法。
+首先升级相应的 docker 版本
+
 ```
 apt-get update
 apt upgrade docker-ce
 ```
-由于ubuntu镜像源较旧，无法更新到最新版docker-compose，接下来手动升级docker-compose。
-在手动升级之前，要确保docker-ce支持的最高docker-compose[版本](https://docs.docker.com/compose/compose-file/compose-versioning/)。
 
-![Img](/images/airflow的入门经验.md/img-20240413105720.png)
+由于 ubuntu 镜像源较旧，无法更新到最新版 docker-compose，接下来手动升级 docker-compose。
+在手动升级之前，要确保 docker-ce 支持的最高 docker-compose[版本](https://docs.docker.com/compose/compose-file/compose-versioning/)。
 
-手动在[https://github.com/docker/compose/releases](https://github.com/docker/compose/releases)下载docker-compose安装包。
+![Img](http://image.trumandu.top/yank-note-picgo-img-20240413105720.png)
 
-首先找到docker-compose地址
+手动在[https://github.com/docker/compose/releases](https://github.com/docker/compose/releases)下载 docker-compose 安装包。
+
+首先找到 docker-compose 地址
+
 ```
 root@lab:/# which docker-compose
 /usr/bin/docker-compose
@@ -27,18 +30,20 @@ root@lab:/# which docker-compose
 
 用下载的文件替换如上文件即可。
 
-
 ### 构建本地镜像
 
-本文需要制作镜像，是因为需要安装新的connections，如果不需要可以忽略本步。
+本文需要制作镜像，是因为需要安装新的 connections，如果不需要可以忽略本步。
 
 Dockerfile
+
 ```
 FROM apache/airflow:2.9.0
 COPY requirements.txt /
 RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r /requirements.txt
 ```
+
 requirements.txt
+
 ```
 apache-airflow-providers-apache-hive
 apache-airflow-providers-apache-kafka
@@ -48,14 +53,16 @@ apache-airflow-providers-elasticsearch
 
 在该目录下执行`docker build -t trumandu/airflow:2.9.0 .`
 
-
 ### 启动服务
-下载docker-compose.yaml.
+
+下载 docker-compose.yaml.
+
 ```
 curl -LfO 'https://airflow.apache.org/docs/apache-airflow/2.9.0/docker-compose.yaml'
 ```
 
 修改基础镜像为以上重新制作的。
+
 ```
 ---
 x-airflow-common: &airflow-common
@@ -304,28 +311,29 @@ volumes:
 ```
 
 初始化数据库
+
 ```
 docker compose up airflow-init
 ```
 
-运行airflow
+运行 airflow
 
 ```
 docker compose up
 ```
 
 清理环境
+
 ```
 docker compose down --volumes --remove-orphans
 ```
-
 
 ## airflow hive dag
 
 ### 创建 hive connection
 
-![Img](/images/airflow的入门经验.md/img-20240413103845.png)
-![Img](/images/airflow的入门经验.md/img-20240413104001.png)
+![Img](http://image.trumandu.top/yank-note-picgo-img-20240413103845.png)
+![Img](http://image.trumandu.top/yank-note-picgo-img-20240413104001.png)
 如果 test 按钮无法点击可以通过如下两个办法：
 
 1. 配置文件增加`test_connection = Enabled`
@@ -339,7 +347,7 @@ test_connection = Enabled
 
 ### 创建 dag
 
-在dags目录下创建py文件，airflow会定时扫描文件，检测文件是否合法，如果合法，会在界面上看到响应的dag,默认情况下，需要我们手动启用调度新增的dag。
+在 dags 目录下创建 py 文件，airflow 会定时扫描文件，检测文件是否合法，如果合法，会在界面上看到响应的 dag,默认情况下，需要我们手动启用调度新增的 dag。
 
 HiveServer2Hook,测试通过,更多 HiveServer2Hook 用法[详见地址](https://airflow.apache.org/docs/apache-airflow-providers-apache-hive/stable/_api/airflow/providers/apache/hive/hooks/hive/index.html#airflow.providers.apache.hive.hooks.hive.HiveServer2Hook)
 
@@ -444,8 +452,9 @@ with DAG(
 
 ### 手动执行 job
 
-![Img](/images/airflow的入门经验.md/img-20240413103739.png)
-![Img](/images/airflow的入门经验.md/img-20240413103819.png)
+![Img](http://image.trumandu.top/yank-note-picgo-img-20240413103739.png)
+![Img](http://image.trumandu.top/yank-note-picgo-img-20240413103819.png)
 
 ## 参考
+
 1. [Running Airflow in Docker](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html)
