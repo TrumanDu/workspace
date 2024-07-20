@@ -1,6 +1,6 @@
-# 计算kafka消费Lag最佳实践最新版
+# 计算kafka消费组Lag最佳实践最新版
 
-之前写过一篇[如何监控kafka消费Lag情况](https://blog.trumandu.top/2019/04/13/%E5%A6%82%E4%BD%95%E7%9B%91%E6%8E%A7kafka%E6%B6%88%E8%B4%B9Lag%E6%83%85%E5%86%B5/)，五年前写的，在google上访问量很大，最近正好需要再写这个功能，就查看了最新API，发现从`2.5.0`版本后新增了`listOffsets`方法，让计算Lag更简单方便,代码量有质的下降。
+之前写过一篇[如何监控kafka消费Lag情况](https://blog.trumandu.top/2019/04/13/%E5%A6%82%E4%BD%95%E7%9B%91%E6%8E%A7kafka%E6%B6%88%E8%B4%B9Lag%E6%83%85%E5%86%B5/)，五年前写的，在google上访问量很大，最近正好需要再写这个功能，就查看了最新API，发现从`2.5.0`版本后新增了`listOffsets`方法，让计算Lag更简单方便和安全,代码量有质的下降，因为舍弃一些功能，代码精简的了很多。
 
 ## 实践
 
@@ -70,7 +70,7 @@ AdminClient adminClient = AdminClient.create(config);
 ```
 **注意**
 
-API 对kafka的兼容性，我在kakfa版本`2.6.0`测试通过，更低版本，建议自测！
+API 对kafka的兼容性，我在kakfa 服务器版本`2.6.0`测试通过，更低版本，建议自测！
 
 **该方法对消息过期，计算Lag存在一定错误，请注意！！！**
 
