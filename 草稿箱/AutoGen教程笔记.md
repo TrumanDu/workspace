@@ -13,7 +13,7 @@ AutoGen 是微软开源的**多 agent 对话框架**，可以方便的构建 LLM
 3. 增强了 LLM 推理
 4. 它支持多样化的对话模式
 
-![AutoGen](/images/AutoGen教程笔记.md/img-20240925133702.png)
+![AutoGen](https://static.trumandu.top/yank-note-picgo-img-20240925133702.png)
 
 ## Getting Started
 
@@ -46,7 +46,7 @@ autogenstudio ui --port 8888
 
 如果有报错，请安装`pip install flaml[automl]`
 
-![Img](/images/AutoGen教程笔记.md/img-20240925134746.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925134746.png)
 
 ### 入门 Demo
 
@@ -54,12 +54,12 @@ autogenstudio ui --port 8888
 
 在 build 模块选中 model 创建一个 ollam api model ,当然你也可以创建一个 openai model
 
-![Img](/images/AutoGen教程笔记.md/img-20240925135142.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925135142.png)
 
 2.创建 user_proxy 与 default_assistant autogen
 在 agent 模块下创建一个 UserProxy Agent ,可以不用添加 model,但要开启高级选项中的 Code Execution Config 为 local，也就是说允许 agent 在本地执行代码。
 
-![Img](/images/AutoGen教程笔记.md/img-20240925135520.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925135520.png)
 
 再创建一个 default_assistant ，添加之前创建的 model,System Message 设置如下：
 
@@ -78,16 +78,16 @@ Reply "TERMINATE" in the end when everything is done.
 
 ```
 
-![Img](/images/AutoGen教程笔记.md/img-20240925135839.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925135839.png)
 
 3.创建 Default Workflow
-![Img](/images/AutoGen教程笔记.md/img-20240925135923.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925135923.png)
 
 4.运行
-![Img](/images/AutoGen教程笔记.md/img-20240925134746.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925134746.png)
 
 该 demo 对话流程如下：
-![Img](/images/AutoGen教程笔记.md/img-20240925140103.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20240925140103.png)
 
 ## 主要组件与功能
 
