@@ -160,7 +160,211 @@ function FocusInput() {
 export default FocusInput;
 ```
 
+### useImmer
+
+`npm install use-immer`
+
+通过使用 Immer，你写出的代码看起来就像是你“打破了规则”而直接修改了对象,useImmer 通过代理和草稿机制**让你像直接修改对象一样操作状态**，同时自动生成新的不可变状态。
+
+```
+import { useImmer } from 'use-immer'
+  const [person, updatePerson] = useImmer({
+    name: 'Niki de Saint Phalle',
+    artwork: {
+      title: 'Blue Nana',
+      city: 'Hamburg',
+      image: 'https://i.imgur.com/Sd1AgUOm.jpg',
+    }
+  });
+
+  function handleNameChange(e) {
+    updatePerson(draft => {
+      draft.name = e.target.value;
+    });
+  }
+```
+
+### useMemo
+
+useMemo 是一个 React Hook，它在每次重新渲染的时候能够缓存计算的结果。
+
+```
+import { useMemo, useState } from 'react';
+
+function TodoList({ todos, filter }) {
+  const [newTodo, setNewTodo] = useState('');
+  const visibleTodos = useMemo(() => {
+    // ✅ 除非 todos 或 filter 发生变化，否则不会重新执行
+    return getFilteredTodos(todos, filter);
+  }, [todos, filter]);
+  // ...
+}
+```
+
+getFilteredTodos 如果不是一个耗时计算，这里其实不需要使用 useMemo
+
 ## 路由
+
+| 功能       | 使用方式                                                   |
+| ---------- | ---------------------------------------------------------- |
+| 基本导航   | 使用 `<Route>` 定义路由，`<Link>` 创建导航链接。           |
+| 动态路由   | 通过 `/path/:param` 定义动态参数，`useParams()` 获取参数。 |
+| 嵌套路由   | 结合 `useRouteMatch` 实现路径动态拼接，处理子路由。        |
+| 路由重定向 | 使用 `<Redirect>` 或条件渲染实现页面跳转。                 |
+| 404 页面   | 使用 `Switch` 和默认路由显示 404 页面。                    |
+| 查询参数   | 使用 `useLocation` 和 `URLSearchParams` 解析查询字符串。   |
+
+### 路由学习
+
+#### 简单路由切换
+
+```
+import React from 'react';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+
+function Home() {
+  return <h2>Home Page</h2>;
+}
+
+function About() {
+  return <h2>About Page</h2>;
+}
+
+function App() {
+  return (
+    <Router>
+      <nav>
+        <Link to="/">Home</Link>
+        <br />
+        <Link to="/about">About</Link>
+      </nav>
+
+      <Route exact path="/" component={Home} />
+      <Route path="/about" component={About} />
+    </Router>
+  );
+}
+
+export default App;
+
+```
+
+**解释：**
+
+-   <Router>: 包裹整个应用，启用路由功能。
+-   <Link>: 创建路由导航的超链接，不会刷新页面。
+-   <Route>: 定义路径和对应的组件。exact：确保完全匹配路径。
+
+#### 嵌套导航
+
+```
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+
+function Layout() {
+  return (
+    <div>
+      <h1>App Layout</h1>
+      <Outlet /> {/* 渲染子路由 */}
+    </div>
+  );
+}
+
+function Dashboard() {
+  return <h2>Dashboard</h2>;
+}
+
+function Settings() {
+  return <h2>Settings</h2>;
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+
+```
+
+**解释**：
+
+-   `<Outlet>` 是嵌套路由的占位符。
+-   `Layout` 始终渲染，而 `Dashboard` 和 `Settings` 根据路径匹配。
+
+#### 路由重定向
+
+```
+import React from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+
+function Login() {
+  const isLoggedIn = false; // 模拟登录状态
+  if (isLoggedIn) {
+    return <Redirect to="/dashboard" />;
+  }
+  return <h2>Please log in</h2>;
+}
+
+function Dashboard() {
+  return <h2>Dashboard</h2>;
+}
+
+function App() {
+  return (
+    <Router>
+      <Route path="/login" component={Login} />
+      <Route path="/dashboard" component={Dashboard} />
+    </Router>
+  );
+}
+
+export default App;
+
+```
+
+#### 控制路由匹配
+
+在 React Router v6 中，`<Routes>` 是用来替代 v5 中的 `<Switch>`
+
+```
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+function Home() {
+  return <h2>Home Page</h2>;
+}
+
+function About() {
+  return <h2>About Page</h2>;
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+         <Route path="*" element={<NotFound />} /> {/* 默认匹配 */}
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+```
+
+-   只有第一个匹配的路由（如 `/`）会渲染。
+-   **如果不用 `<Routes>`，多个 `<Route>` 都可能渲染（在 v5 或更早版本中会发生）。**
 
 ### Hooks 路由
 
@@ -168,6 +372,7 @@ export default FocusInput;
 -   useLocation
 -   useParams
 -   useRouteMatch
+-   useNavigate
 
 ```
 import { useHistory } from "react-router-dom";
@@ -236,4 +441,11 @@ function Dashboard() {
   );
 }
 
+```
+
+useNavigate 声明式导航，用于代码中动态跳转路径。
+
+```
+const navigate = useNavigate();
+navigate('/details/1');
 ```
