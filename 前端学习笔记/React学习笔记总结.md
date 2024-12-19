@@ -354,7 +354,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-         <Route path="*" element={<NotFound />} /> {/* 默认匹配 */}
+         <Route index  element={<NotFound />} /> {/* 默认匹配 */}
       </Routes>
     </Router>
   );
