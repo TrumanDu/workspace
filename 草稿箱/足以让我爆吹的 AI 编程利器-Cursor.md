@@ -24,7 +24,7 @@ composer能够夸文件修改内容，你只用做的是描述给它，不用费
 ![Img](https://static.trumandu.top/yank-note-picgo-img-20241224225119.png)
 
 
-多次tab，不是语法的提示，而是基于上下文的分析，判断你修改的意图，给你提前预测下一步你要修改的地方和修改和修改内容。
+多次tab，不是语法的提示，而是基于上下文的分析，判断你修改的意图，给你提前预测下一步你要修改的地方和和修改内容。
 
 ![Img](https://static.trumandu.top/yank-note-picgo-img-20241224225355.png)
 
