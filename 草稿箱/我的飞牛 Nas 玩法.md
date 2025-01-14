@@ -53,6 +53,78 @@ GET http://192.168.0.110:8080/xxxxx/推送内容?group=分组
 
 更多用法与文档详见：[https://bark.day.app/#/?id=bark](https://bark.day.app/#/?id=bark)
 
+不用配置 bark-server，可以使用 python 代码直接调用 APNs，demo 如下：
+
+```
+import jwt
+import time
+import httpx
+from pathlib import Path
+
+# 配置环境变量
+TOKEN_KEY_FILE_NAME = "./AuthKey_LH4T9V5U4R_5U8LBRXG3A.p8"  # 替换为你的 key 文件路径
+DEVICE_TOKEN = "xxxxxx"  # 从 app 设置中复制的 DeviceToken
+
+# 固定参数
+TEAM_ID = "5U8LBRXG3A"
+AUTH_KEY_ID = "LH4T9V5U4R"
+TOPIC = "me.fin.bark"
+APNS_HOST_NAME = "api.push.apple.com"
+
+
+# 生成 JWT Token
+def generate_auth_token():
+    # 读取密钥文件
+    private_key = Path(TOKEN_KEY_FILE_NAME).read_text()
+
+    # 生成 JWT Header 和 Claims
+    headers = {"alg": "ES256", "kid": AUTH_KEY_ID}
+    payload = {"iss": TEAM_ID, "iat": int(time.time())}
+
+    # 签名生成 Token
+    token = jwt.encode(payload, private_key, algorithm="ES256", headers=headers)
+    return token
+
+
+# 发送推送
+def send_push_notification(token):
+    headers = {
+        "apns-topic": TOPIC,
+        "apns-push-type": "alert",
+        "authorization": f"bearer {token}"
+    }
+    payload = {
+        "aps": {
+            "mutable-content": 1,
+            "alert": {
+                "title": "title",
+                "body": "body"
+            },
+            "category": "myNotificationCategory",
+            "sound": "minuet.caf"
+        },
+        "icon": "https://day.app/assets/images/avatar.jpg"
+    }
+
+    # 使用 httpx 发送请求
+    url = f"https://{APNS_HOST_NAME}/3/device/{DEVICE_TOKEN}"
+    with httpx.Client(http2=True) as client:
+        response = client.post(url, json=payload, headers=headers)  # 示例 GET 请求
+        if response.status_code == 200:
+            print("推送成功！")
+        else:
+            print(f"推送失败，状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
+
+
+if __name__ == "__main__":
+    # 生成 Token
+    auth_token = generate_auth_token()
+
+    # 发送推送通知
+    send_push_notification(auth_token)
+```
+
 ### UptimeKuma
 
 ### 浏览器
