@@ -127,18 +127,48 @@ if __name__ == "__main__":
 
 ### UptimeKuma
 
+https://github.com/louislam/uptime-kuma
+
+一个易于使用的自托管网站健康状态监控开源项目
+
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250114161843.png)
+
 ### 浏览器
 
 ### tao-sync
 
 https://github.com/dr34m-cn/taosync
 
+因为 Alist 中不支持定时同步功能，通过 taosync 可以实现定时同步功能。它的原理是调用 alist 的复制接口实现的。
+
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250115211240.png)
+
 ### alist
+
+https://github.com/AlistGo/alist
+
+一个支持多存储的文件列表/WebDAV 程序，支持百度，阿里云，夸克云，S3 等多种存储，基本弥补 Nas 对网盘支持不足的问题。
+
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250114162431.png)
 
 ### 夸克网盘自动转存
 
 https://github.com/Cp0204/quark-auto-save
 
+夸克网盘签到、自动转存、命名整理、发推送提醒和刷新媒体库一条龙
+
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250114160218.png)
+
 ### IPTV
 
 doube-ipv
+
+### Sun-Panel
+
+https://doc.sun-panel.top/zh_cn/
+
+一个 NAS、服务器导航面板、简易 docker 管理器、Homepage、浏览器首页
+
+飞牛部署的 docker 软件越来越多，标签收藏也越来越多，为了统一记录各个服务的地址，我就部署了 Sun-Panel，曾经以为我不需要导航面板，现在回想一下，也是不错的。
+
+![Sun-Panel](https://static.trumandu.top/yank-note-picgo-img-20250115223415.png)
