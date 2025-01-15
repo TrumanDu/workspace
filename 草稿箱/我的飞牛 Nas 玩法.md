@@ -135,6 +135,10 @@ https://github.com/louislam/uptime-kuma
 
 ### 浏览器
 
+![浏览器](https://static.trumandu.top/yank-note-picgo-img-20250115224613.png)
+
+ 在 nas 中跑浏览器的最大好处就是可以不用担心信息安全，不用担心公司记录你的浏览记录，安全摸鱼，可信摸鱼。我这里是在飞牛应用中心安装的。
+
 ### tao-sync
 
 https://github.com/dr34m-cn/taosync
@@ -160,6 +164,8 @@ https://github.com/Cp0204/quark-auto-save
 ![Img](https://static.trumandu.top/yank-note-picgo-img-20250114160218.png)
 
 ### IPTV
+
+https://hub.docker.com/r/doubebly/doube-itv
 
 doube-ipv
 
