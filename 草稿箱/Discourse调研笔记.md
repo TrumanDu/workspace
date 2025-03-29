@@ -11,6 +11,8 @@
 1. [官方社区方案](https://github.com/discourse/discourse_docker)
 2. VMware 旗下[bitnami/discourse](https://hub.docker.com/r/bitnami/discourse)
 
+### bitnami/discourse 部署
+
 最快速的方案推荐 bitnami，一个 docker-compose.yml 一条命令就可以跑起来。
 
 ```
@@ -80,6 +82,78 @@ volumes:
 
 启动命令：`docker compose up -d`
 删除容器和数据：`docker compose down --volumes`
+
+### 官方部署方案
+
+```
+sudo -s
+git clone https://github.com/discourse/discourse_docker.git /var/discourse
+cd /var/discourse
+chmod 700 containers
+```
+
+安装向导，初始化配置文件
+
+```
+./discourse-setup
+```
+
+基于模板为配置启动一个容器
+
+```
+./launcher bootstrap app
+```
+
+## 官方 discourse 使用
+
+```
+Usage: launcher COMMAND CONFIG [--skip-prereqs] [--docker-args STRING]
+Commands:
+    start:       Start/initialize a container
+    stop:        Stop a running container
+    restart:     Restart a container
+    destroy:     Stop and remove a container
+    enter:       Open a shell to run commands inside the container
+    logs:        View the Docker logs for a container
+    bootstrap:   Bootstrap a container for the config based on a template
+    run:         Run the given command with the config in the context of the last bootstrapped image
+    rebuild:     Rebuild a container (destroy old, bootstrap, start new)
+    cleanup:     Remove all containers that have stopped for > 24 hours
+    start-cmd:   Generate docker command used to start container
+
+Options:
+    --skip-prereqs             Don't check launcher prerequisites
+    --docker-args              Extra arguments to pass when running docker
+    --skip-mac-address         Don't assign a mac address
+    --run-image                Override the image used for running the container
+
+```
+
+重新构建一个容器
+
+```
+./launcher rebuild app
+
+```
+
+启动/停止应用
+
+```
+./launcher start app
+./launcher stop app
+```
+
+进入容器
+
+```
+./launcher enter app
+```
+
+创建管理员账户
+
+```
+rake admin:create
+```
 
 ## bitnami/discourse 使用
 
@@ -167,3 +241,26 @@ https://{host}/about.json
 
 1.删除顶部 getting started
 ![Img](/images/Discourse调研笔记.md/img-20250326100823.png)
+
+## 预安装插件列表
+
+| 名称                         | 文档                                                               | 仓库                                                      |
+| :--------------------------- | :----------------------------------------------------------------- | :-------------------------------------------------------- |
+| Discourse OAuth2 Basic| https://meta.discourse.org/t/discourse-oauth2-basic/33879 | https://github.com/discourse/discourse-oauth2-basic |
+| Discourse Restricted Replies | https://meta.discourse.org/t/discourse-restricted-replies/131343/1 | https://github.com/discourse/discourse-restricted-replies |
+| Discourse Category Experts| https://meta.discourse.org/t/discourse-category-experts/190814 | https://github.com/discourse/discourse-category-experts |
+| Discourse AI| https://meta.discourse.org/t/discourse-ai/259214 | https://github.com/discourse/discourse-ai |
+| Discourse Reactions| https://meta.discourse.org/t/discourse-reactions/183261 | https://github.com/discourse/discourse-reactions |
+| Discourse Surveys| https://meta.discourse.org/t/discourse-surveys/308679 | https://github.com/discourse/discourse-surveys |
+| Discourse Saved Searches| https://meta.discourse.org/t/discourse-saved-searches/67901 | https://github.com/discourse/discourse-saved-searches |
+| Discourse Follow| https://meta.discourse.org/t/discourse-follow/110579 | https://github.com/discourse/discourse-follow |
+| Discourse Checklist| https://meta.discourse.org/t/discourse-checklist/36362 | 默认已支持 |
+| Discourse Subscriptions| https://meta.discourse.org/t/discourse-subscriptions/140818 | https://github.com/discourse/discourse-subscriptions |
+| Discourse Signatures| https://meta.discourse.org/t/discourse-signatures/42263 | https://github.com/discourse/discourse-signatures |
+| Discourse Cakeday| https://meta.discourse.org/t/discourse-cakeday/38447 | https://github.com/discourse/discourse-cakeday |
+| Discourse Tooltips| https://meta.discourse.org/t/discourse-tooltips/69304 | https://github.com/discourse/discourse-tooltips |
+| Landing Pages Blog| https://meta.discourse.org/t/landing-pages-blog/190390 |  |
+| Discourse Newsletter Integration| https://meta.discourse.org/t/discourse-newsletter-integration/275509 | https://github.com/discourse/discourse-newsletter-integration |
+| Discourse Yearly Review| https://meta.discourse.org/t/discourse-yearly-review/105713 | https://github.com/discourse/discourse-yearly-review |
+| Discourse Translator| https://meta.discourse.org/t/discourse-translator/32630 | https://github.com/discourse/discourse-translator |
+| 1| 2 | 3 |
