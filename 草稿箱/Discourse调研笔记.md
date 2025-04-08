@@ -259,7 +259,7 @@ https://{host}/about.json
 | Discourse Signatures | https://meta.discourse.org/t/discourse-signatures/42263 | https://github.com/discourse/discourse-signatures | yes |
 | Discourse Cakeday | https://meta.discourse.org/t/discourse-cakeday/38447 | https://github.com/discourse/discourse-cakeday | yes |
 | Discourse Tooltips | https://meta.discourse.org/t/discourse-tooltips/69304 | https://github.com/discourse/discourse-tooltips | yes |
-| Landing Pages Blog | https://meta.discourse.org/t/landing-pages-blog/190390 |  | -- |
+| Landing Pages Blog | https://meta.discourse.org/t/landing-pages-blog/190390 | https://github.com/paviliondev/discourse-landing-pages | -- |
 | Discourse Newsletter Integration | https://meta.discourse.org/t/discourse-newsletter-integration/275509 | https://github.com/discourse/discourse-newsletter-integration | yes |
 | Discourse Yearly Review | https://meta.discourse.org/t/discourse-yearly-review/105713 | https://github.com/discourse/discourse-yearly-review | yes |
 | Discourse Translator | https://meta.discourse.org/t/discourse-translator/32630 | https://github.com/discourse/discourse-translator | yes |
