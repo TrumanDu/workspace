@@ -218,6 +218,12 @@ api_keys:
 
 ## API
 
+API 文档 https://docs.discourse.org/
+
+Ruby API https://github.com/discourse/discourse_api
+
+逆向 API https://meta.discourse.org/t/reverse-engineer-the-discourse-api/20576?silent=true
+
 查询所有的 Category
 
 ```
@@ -244,23 +250,47 @@ https://{host}/about.json
 
 ## 预安装插件列表
 
-| 名称                         | 文档                                                               | 仓库                                                      | 是否安装 |
-| :--------------------------- | :----------------------------------------------------------------- | :-------------------------------------------------------- | -- |
-| Discourse OAuth2 Basic | https://meta.discourse.org/t/discourse-oauth2-basic/33879 | https://github.com/discourse/discourse-oauth2-basic | yes |
-| Discourse Restricted Replies | https://meta.discourse.org/t/discourse-restricted-replies/131343/1 | https://github.com/discourse/discourse-restricted-replies | yes |
-| Discourse Category Experts | https://meta.discourse.org/t/discourse-category-experts/190814 | https://github.com/discourse/discourse-category-experts | yes |
-| Discourse AI | https://meta.discourse.org/t/discourse-ai/259214 | https://github.com/discourse/discourse-ai | no |
-| Discourse Reactions | https://meta.discourse.org/t/discourse-reactions/183261 | https://github.com/discourse/discourse-reactions | yes |
-| Discourse Surveys | https://meta.discourse.org/t/discourse-surveys/308679 | https://github.com/discourse/discourse-surveys | yes |
-| Discourse Saved Searches | https://meta.discourse.org/t/discourse-saved-searches/67901 | https://github.com/discourse/discourse-saved-searches | yes |
-| Discourse Follow | https://meta.discourse.org/t/discourse-follow/110579 | https://github.com/discourse/discourse-follow | yes |
-| Discourse Checklist | https://meta.discourse.org/t/discourse-checklist/36362 | 默认已支持 | -- |
-| Discourse Subscriptions | https://meta.discourse.org/t/discourse-subscriptions/140818 | https://github.com/discourse/discourse-subscriptions | yes |
-| Discourse Signatures | https://meta.discourse.org/t/discourse-signatures/42263 | https://github.com/discourse/discourse-signatures | yes |
-| Discourse Cakeday | https://meta.discourse.org/t/discourse-cakeday/38447 | https://github.com/discourse/discourse-cakeday | yes |
-| Discourse Tooltips | https://meta.discourse.org/t/discourse-tooltips/69304 | https://github.com/discourse/discourse-tooltips | yes |
-| Landing Pages Blog | https://meta.discourse.org/t/landing-pages-blog/190390 | https://github.com/paviliondev/discourse-landing-pages | -- |
-| Discourse Newsletter Integration | https://meta.discourse.org/t/discourse-newsletter-integration/275509 | https://github.com/discourse/discourse-newsletter-integration | yes |
-| Discourse Yearly Review | https://meta.discourse.org/t/discourse-yearly-review/105713 | https://github.com/discourse/discourse-yearly-review | yes |
-| Discourse Translator | https://meta.discourse.org/t/discourse-translator/32630 | https://github.com/discourse/discourse-translator | yes |
-| 1 | 2 | 3 | -- |
+| 名称                             | 文档                                                                 | 仓库                                                          | 是否安装 |
+| :------------------------------- | :------------------------------------------------------------------- | :------------------------------------------------------------ | -------- |
+| Discourse OAuth2 Basic           | https://meta.discourse.org/t/discourse-oauth2-basic/33879            | https://github.com/discourse/discourse-oauth2-basic           | yes      |
+| Discourse Restricted Replies     | https://meta.discourse.org/t/discourse-restricted-replies/131343/1   | https://github.com/discourse/discourse-restricted-replies     | yes      |
+| Discourse Category Experts       | https://meta.discourse.org/t/discourse-category-experts/190814       | https://github.com/discourse/discourse-category-experts       | yes      |
+| Discourse AI                     | https://meta.discourse.org/t/discourse-ai/259214                     | https://github.com/discourse/discourse-ai                     | no       |
+| Discourse Reactions              | https://meta.discourse.org/t/discourse-reactions/183261              | https://github.com/discourse/discourse-reactions              | yes      |
+| Discourse Surveys                | https://meta.discourse.org/t/discourse-surveys/308679                | https://github.com/discourse/discourse-surveys                | yes      |
+| Discourse Saved Searches         | https://meta.discourse.org/t/discourse-saved-searches/67901          | https://github.com/discourse/discourse-saved-searches         | yes      |
+| Discourse Follow                 | https://meta.discourse.org/t/discourse-follow/110579                 | https://github.com/discourse/discourse-follow                 | yes      |
+| Discourse Checklist              | https://meta.discourse.org/t/discourse-checklist/36362               | 默认已支持                                                    | --       |
+| Discourse Subscriptions          | https://meta.discourse.org/t/discourse-subscriptions/140818          | https://github.com/discourse/discourse-subscriptions          | yes      |
+| Discourse Signatures             | https://meta.discourse.org/t/discourse-signatures/42263              | https://github.com/discourse/discourse-signatures             | yes      |
+| Discourse Cakeday                | https://meta.discourse.org/t/discourse-cakeday/38447                 | https://github.com/discourse/discourse-cakeday                | yes      |
+| Discourse Tooltips               | https://meta.discourse.org/t/discourse-tooltips/69304                | https://github.com/discourse/discourse-tooltips               | yes      |
+| Landing Pages Blog               | https://meta.discourse.org/t/landing-pages-blog/190390               | https://github.com/paviliondev/discourse-landing-pages        | --       |
+| Discourse Newsletter Integration | https://meta.discourse.org/t/discourse-newsletter-integration/275509 | https://github.com/discourse/discourse-newsletter-integration | yes      |
+| Discourse Yearly Review          | https://meta.discourse.org/t/discourse-yearly-review/105713          | https://github.com/discourse/discourse-yearly-review          | yes      |
+| Discourse Translator             | https://meta.discourse.org/t/discourse-translator/32630              | https://github.com/discourse/discourse-translator             | yes      |
+| discourse-user-notes             |                                                                      | https://github.com/discourse/discourse-user-notes             | yes      |
+
+## 数据库操作
+
+变更管理员邮箱
+
+```
+SELECT * FROM users WHERE admin = true;
+
+
+SELECT id, email FROM user_emails WHERE user_id = 1;--user@example.com
+
+
+UPDATE user_emails SET email = 'user@example.com', updated_at = NOW() WHERE user_id = 1;
+
+```
+
+## 备份
+
+1.修改备份包内容
+
+```
+gzip gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz
+tar -zczvf gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz ./*
+```
