@@ -187,35 +187,6 @@ RAILS_ENV=production bundle exec rake themes:update assets:precompile
 
 有可能安装失败，原因未知。
 
-## 主题开发
-
-可以通过本地开发实时渲染更新到网站上，这种方式可以大大提高主题开发效率。具体文档详见：https://meta.discourse.org/t/install-the-discourse-theme-cli-console-app-to-help-you-build-themes/82950/1
-
-通过 discourse_theme 命令可以将本地开发好的主题直接上传到网站上，同时还可以实时渲染看到更改效果！
-
-1. 首先安装 Ruby,通过[Ruby Installer](https://rubyinstaller.org/)很容易安装
-2. 然后通过命令安装 discourse cli `gem install discourse_theme`
-3. 使用 cli
-   例如：创建`discourse_theme new YOUR_DIR_NAME`
-   实时渲染 `discourse_theme watch YOUR_DIR_NAME`
-
-.discourse_theme 配置信息可以参考我本地：
-
-```
----
-C:/Users/truman/Desktop/discourse-redditish-theme:
-  url: https://gamertest.xxxx.org
-  components: none
-  theme_id: 16
-api_keys:
-  https://gamertest.xxxx.org:
-  xxxxxxxxxxxxx
-```
-
-使用命令：`discourse_theme watch .\discourse-redditish-theme\`
-
-![Img](/images/Discourse调研笔记.md/img-20250325144749.png)
-
 ## API
 
 API 文档 https://docs.discourse.org/
@@ -248,6 +219,11 @@ https://{host}/about.json
 1.删除顶部 getting started
 ![Img](/images/Discourse调研笔记.md/img-20250326100823.png)
 
+2.Summarize this topic button
+
+这个功能默认是存在的，只是需要达到一个计算分数，具体详见：https://meta.discourse.org/t/summarize-this-topic-button/132790/17
+![Img](/images/Discourse调研笔记.md/img-20250418164101.png)
+
 ## 预安装插件列表
 
 | 名称                             | 文档                                                                 | 仓库                                                          | 是否安装 |
@@ -270,6 +246,7 @@ https://{host}/about.json
 | Discourse Yearly Review          | https://meta.discourse.org/t/discourse-yearly-review/105713          | https://github.com/discourse/discourse-yearly-review          | yes      |
 | Discourse Translator             | https://meta.discourse.org/t/discourse-translator/32630              | https://github.com/discourse/discourse-translator             | yes      |
 | discourse-user-notes             |                                                                      | https://github.com/discourse/discourse-user-notes             | yes      |
+| discourse-data-explorer          | https://meta.discourse.org/t/discourse-data-explorer/32566           | https://github.com/discourse/discourse-data-explorer          | -------- |
 
 ## 数据库操作
 
@@ -294,3 +271,145 @@ UPDATE user_emails SET email = 'user@example.com', updated_at = NOW() WHERE user
 gzip gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz
 tar -zczvf gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz ./*
 ```
+
+## 主题开发
+
+可以通过本地开发实时渲染更新到网站上，这种方式可以大大提高主题开发效率。具体文档详见：https://meta.discourse.org/t/install-the-discourse-theme-cli-console-app-to-help-you-build-themes/82950/1
+
+通过 discourse_theme 命令可以将本地开发好的主题直接上传到网站上，同时还可以实时渲染看到更改效果！
+
+1. 首先安装 Ruby,通过[Ruby Installer](https://rubyinstaller.org/)很容易安装
+2. 然后通过命令安装 discourse cli `gem install discourse_theme`
+3. 使用 cli
+   例如：创建`discourse_theme new YOUR_DIR_NAME`
+   实时渲染 `discourse_theme watch YOUR_DIR_NAME`
+
+.discourse_theme 配置信息可以参考我本地：
+
+```
+---
+C:/Users/truman/Desktop/discourse-redditish-theme:
+  url: https://gamertest.xxxx.org
+  components: none
+  theme_id: 16
+api_keys:
+  https://gamertest.xxxx.org:
+  xxxxxxxxxxxxx
+```
+
+使用命令：`discourse_theme watch .\discourse-redditish-theme\`
+
+![Img](/images/Discourse调研笔记.md/img-20250325144749.png)
+
+### components 开发
+
+可以参考：https://github.com/discourse/discourse-profile-custom-link
+
+`settings.yml` 用来设置配置信息
+
+`common/common.scss` 设置公共样式
+
+`javascripts/discourse/connectors` 设置插槽入口
+
+`locales/en.yml` 设置国际化
+
+`javascripts/discourse/components` 用来添加前端组件
+
+举个例子，这里开发一个调用后端 api 获取相应数据。
+
+```
+export default class ProfileCustomLink extends Component {
+  @service site;
+  @service api;
+
+  @tracked customLinkUrl;
+  @tracked customLinkFieldId;
+  @tracked showCustomLink = false;
+  @tracked user = this.args.model.username;
+  @tracked userId = this.args.model.id;
+  @tracked userFields = this.args.model.user_fields;
+
+  constructor() {
+    super(...arguments);
+    console.info("[Custom Profile Link] model", this.args.model);
+    this.fetchExternalIds().then((oauth2BasicId) => {
+      const url = settings.profile_custom_link_prefix + (oauth2BasicId == null ? '' : oauth2BasicId);
+      this.customLinkUrl = url;
+      this.showCustomLink = true;
+    });
+  }
+
+  async fetchExternalIds() {
+    try {
+      const response = await ajax(`/admin/users/${this.userId}.json`, {
+        headers: {
+          "Api-Key": settings.profile_custom_link_api_key,
+          "Api-Username": settings.profile_custom_link_api_username
+        }
+      });
+      const oauth2BasicId = response.external_ids?.oauth2_basic;
+      return oauth2BasicId
+    } catch (error) {
+      console.error("[Custom Profile Link] Error fetching external IDs:", error);
+    }
+  }
+}
+
+```
+
+## 插件开发
+
+插件和主题的 components 有点类似，但部分使用又有点区别，可以首先参考[discourse-plugin-skeleton](https://github.com/discourse/discourse-plugin-skeleton) 骨架项目创建一个插件项目。
+
+开发文档：[Developing Discourse Plugins - Part 1 - Create a basic plugin](https://meta.discourse.org/t/developing-discourse-plugins-part-1-create-a-basic-plugin/30515?silent=true)
+
+以下来解释一下项目目录：
+```
+.                                                                                                                                                                                                               
+├── Gemfile
+├── Gemfile.lock
+├── LICENSE
+├── README.md
+├── app
+│   └── controllers # 增加后端API 入口
+│       └── discourse_profile
+│           └── profile_controller.rb
+├── assets
+│   ├── javascripts
+│   │   └── discourse
+│   │       ├── components # 前端组件
+│   │       │   └── profile-link.js
+│   │       ├── connectors # 页面注入槽点
+│   │       │   ├── user-card-post-names # 槽点
+│   │       │   │   └── profile-link.hbs
+│   │       │   └── user-location-and-website # 槽点
+│   │       │       └── profile-link.hbs
+│   │       └── templates
+│   │           └── components
+│   │               └── profile-link.hbs # 页面模板文件
+│   └── stylesheets
+│       └── common
+│           └── profile.scss
+├── config
+│   ├── locales
+│   │   └── client.en.yml # 国际化
+│   ├── routes.rb # 路由配置
+│   └── settings.yml # 配置参数
+├── db
+├── eslint.config.mjs
+├── lib
+│   └── profile_link
+│       └── engine.rb
+├── package.json
+├── plugin.rb    # 插件注册和配置的入口
+├── pnpm-lock.yaml
+├── spec
+│   └── system
+│       └── core_features_spec.rb
+├── stylelint.config.mjs
+└── test
+    └── javascripts
+```
+
+
+
