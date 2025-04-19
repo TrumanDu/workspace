@@ -364,8 +364,9 @@ export default class ProfileCustomLink extends Component {
 开发文档：[Developing Discourse Plugins - Part 1 - Create a basic plugin](https://meta.discourse.org/t/developing-discourse-plugins-part-1-create-a-basic-plugin/30515?silent=true)
 
 以下来解释一下项目目录：
+
 ```
-.                                                                                                                                                                                                               
+.
 ├── Gemfile
 ├── Gemfile.lock
 ├── LICENSE
@@ -411,5 +412,243 @@ export default class ProfileCustomLink extends Component {
     └── javascripts
 ```
 
+### 插件配置
+
+在 plugin.rb 文件开头增加插件配置信息，主要用来声明插件信息。
+
+```
+# name: discourse-profile
+# about: Add Profile Link to User Profile
+# version: 1.0.0
+# authors: Truman
+# url: https://xxxxx.xxxx.xxxxx
+```
+
+### 配置信息
+
+在 settings.yml 中设置插件可用配置信息，如下为我最近写的一个例子：
+
+```
+plugins:
+  profile_link_enabled:
+    default: true
+    type: bool
+    client: true
+  profile_link_label:
+    default: "Truman Profile"
+    client: true
+    type: text
+  ......
+
+```
+
+官网文档 plugins 为 plugin name ，但是国际化中还需要额外增加信息，我看很多插件都是使用 plugins，目前测试没有问题。
+
+如果想让前端获取该配置信息，一定要增加`client: true`
+
+同时还需要在 plugin.rb 中启用，使用如下：
+
+```
+enabled_site_setting :profile_link_enabled
+
+# 在 Discourse 管理界面中添加设置
+add_admin_route 'profile_link.title', 'profile_link', use_new_show_route: true
+```
+
+除此以外还需要初始化注册
+
+```
+after_initialize do
+  # 注册设置
+   settings = %w[
+    label
+    debug
+  ]
+
+  settings.each do |setting|
+    SiteSetting.set("profile_link_#{setting}", SiteSetting.defaults["profile_link_#{setting}"] || nil)
+  end
+end
+```
+
+最后为了能在插件页面设置配置信息再添加路由
+
+```
+Discourse::Application.routes.append do
+  get '/admin/plugins/profile_link' => 'admin/plugins#index', constraints: StaffConstraint.new
+end
 
 
+```
+
+前端页面获取配置信息
+js 中
+
+```
+import Component from "@glimmer/component";
+import { service } from '@ember/service';
+
+export default class ProfileLink extends Component {
+    @service siteSettings;
+
+    get linkLabel() {
+        return this.siteSettings.profile_link_label;
+    }
+}
+```
+
+其中切记一定要增加`@service siteSettings;`,负责 js 和 hbs 中都无法获取配置信息。
+
+模板文件 hbs 中
+
+```
+{{this.siteSettings.profile_link_label}}
+```
+
+后端 rb 代码获取配置信息
+
+```
+SiteSetting.profile_link_label
+```
+
+### 样式
+
+在`assets/stylesheets/common`目录下增加自己插件的样式信息，要求为 scss
+
+```
+.user-card-location-and-website-outlet {
+  margin-inline: 0.5em;
+
+  .external-user-link {
+    a {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    svg {
+      margin-right: 0.25em;
+    }
+  }
+}
+```
+
+同时还需要在 plugin.rb 中启用，使用如下：
+
+```
+register_asset "stylesheets/common/profile.scss"
+```
+
+### 前端开发
+
+前端代码都是在`assets/javascripts/discourse/`下，以下用...替代
+
+**前端组件及模板**
+
+ProfileLink 组件在`.../components/`下
+
+```
+import Component from "@glimmer/component";
+import { service } from '@ember/service';
+
+export default class ProfileLink extends Component {
+    @service siteSettings;
+
+    get linkLabel() {
+        return this.siteSettings.profile_link_label;
+    }
+}
+
+```
+
+**前端注入点**
+
+`.../connectors/user-card-post-names/link.hbs`
+
+其中`user-card-post-names` 为 discourse 前端插槽，又称注入点。
+
+link.hbs 例如：
+
+```
+<ProfileLink @user={{@outletArgs.user}}/>
+```
+
+### 后端开发
+
+在 Discourse 插件开发中，使用 Engine 定义自己插件空间，隔离一些信息。
+
+在 plugin.rb 中引入定义,定义模块
+
+```
+require_relative "lib/profile_link/engine"
+
+module ::DiscourseProfile
+  PLUGIN_NAME = "discourse-profile"
+end
+```
+
+engine.rb
+
+```
+# frozen_string_literal: true
+
+module ::DiscourseProfile
+  class Engine < ::Rails::Engine
+    engine_name PLUGIN_NAME
+    isolate_namespace DiscourseProfile
+  end
+end
+```
+
+在`config/routes.rb`中声明路由
+
+```
+# frozen_string_literal: true
+
+DiscourseProfile::Engine.routes.draw do
+  get "/profile_link/:user_id" => "profile#show", as: :profile_link
+end
+
+Discourse::Application.routes.draw do
+  mount ::DiscourseProfile::Engine, at: "profile_link"
+end
+```
+
+这里声明了一个 get 请求`/profile_link/:user_id`,后端对应放在在 controllers 中
+
+例如`app/controllers/discourse-profile/profile_cpmtroller.rb`
+
+```
+module DiscourseProfile
+  class ProfileController < ::ApplicationController
+    requires_plugin DiscourseProfile::PLUGIN_NAME
+
+    def show
+      if SiteSetting.profile_link_debug
+        Rails.logger.info "Processing profile request for user_id: #{params[:user_id]}"
+      end
+
+      raise Discourse::InvalidAccess.new unless current_user
+
+
+      user = User.find_by(id: params[:user_id])
+      raise Discourse::NotFound unless user
+
+      result = fetch_profile(user)
+
+
+
+      render json: result
+    end
+
+    private
+
+    def fetch_profile(user)
+      {
+        profile_url: 'test_url'
+        username: user.username,
+        nid: nid
+      }
+    end
+  end
+end
+```
