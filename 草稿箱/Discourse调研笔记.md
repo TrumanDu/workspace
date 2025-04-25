@@ -247,6 +247,7 @@ https://{host}/about.json
 | Discourse Translator             | https://meta.discourse.org/t/discourse-translator/32630              | https://github.com/discourse/discourse-translator             | yes      |
 | discourse-user-notes             |                                                                      | https://github.com/discourse/discourse-user-notes             | yes      |
 | discourse-data-explorer          | https://meta.discourse.org/t/discourse-data-explorer/32566           | https://github.com/discourse/discourse-data-explorer          | -------- |
+| discourse-topic-voting | https://meta.discourse.org/t/discourse-topic-voting/40121 | https://github.com/discourse/discourse-topic-voting | -------- |
 
 ## 数据库操作
 
