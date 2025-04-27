@@ -155,6 +155,121 @@ Options:
 rake admin:create
 ```
 
+### 子路径部署
+
+[官方文档](https://meta.discourse.org/t/serve-discourse-from-a-subfolder-path-prefix-instead-of-a-subdomain/30507)
+
+例如我们要使用https://www.example.com/forum 访问论坛，这种就属于子路径部署。
+
+在 app.yml 文件中添加相应信息，重新编译就可以了。
+
+```
+env:
+  ...
+  DISCOURSE_RELATIVE_URL_ROOT: /forum
+
+run:
+    - exec:
+        cd: $home
+        cmd:
+          - mkdir -p public/forum
+          - cd public/forum && ln -s ../uploads && ln -s ../backups
+    - replace:
+       global: true
+       filename: /etc/nginx/conf.d/discourse.conf
+       from: proxy_pass http://discourse;
+       to: |
+          rewrite ^/(.*)$ /forum/$1 break;
+          proxy_pass http://discourse;
+    - replace:
+       filename: /etc/nginx/conf.d/discourse.conf
+       from: etag off;
+       to: |
+          etag off;
+          location /forum {
+             rewrite ^/forum/?(.*)$ /$1;
+          }
+    - replace:
+         filename: /etc/nginx/conf.d/discourse.conf
+         from: $proxy_add_x_forwarded_for
+         to: $http_your_original_ip_header
+         global: true
+
+```
+
+部署好以后，就可以访问了，如果存在本地上传的静态文件，就需要修改一下文件路径。
+
+```
+./launcher enter app
+RAILS_ENV=production bundle exec script/discourse remap '/uploads' '/forum/uploads'
+```
+
+注意：如果你的路径为/demo/forum 那么需要将以上内容中的`/forum`替换为`/demo/forum`，run 中还需要调整一个相对路径`cd public/demo/forum && ln -s ../../uploads && ln -s ../../backups`,因为是两级目录，这里需要注意一下，避免找不到静态文件。
+
+### 添加网络代理
+
+```
+env:
+  ...
+  http_proxy: http://xxxx
+  https_proxy: http://xxxx
+  no_proxy: "127.0.0.1,localhost,.demo.com"
+  HTTPS_PROXY: http://xxxx
+  HTTP_PROXY: http://xxxx
+  NO_PROXY: "127.0.0.1,localhost,.demo.com"
+```
+
+### 安装插件
+
+```
+hooks:
+  before_exec:
+    - exec: "ulimit -v 2097152"
+  after_code:
+    - exec:
+        cd: $home/plugins
+        cmd:
+          - git clone https://github.com/discourse/discourse-oauth2-basic
+          - git clone https://github.com/discourse/discourse-restricted-replies
+          - git clone https://github.com/discourse/discourse-templates
+```
+
+### google object storage
+
+[官方文档](https://meta.discourse.org/t/configure-an-s3-compatible-object-storage-provider-for-uploads/148916#google-cloud-platform-storage-5)
+
+```
+env:
+  ...
+  DISCOURSE_USE_S3: true
+  DISCOURSE_S3_REGION: us-east1
+  DISCOURSE_S3_INSTALL_CORS_RULE: false
+  FORCE_S3_UPLOADS: 1
+  DISCOURSE_S3_ENDPOINT: https://storage.googleapis.com
+  DISCOURSE_S3_ACCESS_KEY_ID: myaccesskey
+  DISCOURSE_S3_SECRET_ACCESS_KEY: mysecretkey
+  DISCOURSE_S3_CDN_URL: https://falcoland-files-cdn.falco.dev
+  DISCOURSE_S3_BUCKET: falcoland-files
+  #DISCOURSE_S3_BACKUP_BUCKET: falcoland-files/backup
+  #DISCOURSE_BACKUP_LOCATION: s3
+
+```
+
+其中 DISCOURSE_S3_CDN_URL 代表将 js 等资源也上传到云上，如果没有该配置只会上传文件。
+
+如果启用，还需要添加上传 js 等资源。每次编译都会上传。
+
+```
+hooks:
+  after_assets_precompile:
+    - exec:
+        cd: $home
+        cmd:
+          - sudo -E -u discourse bundle exec rake s3:upload_assets
+          # - sudo -E -u discourse bundle exec rake s3:expire_missing_assets  --trace 正常来说需要该步操作，但是目前执行会报错，可以手动在页面上删除。
+
+```
+
 ## bitnami/discourse 使用
 
 文档可以查看[ bitnami/discourse](https://hub.docker.com/r/bitnami/discourse)
@@ -247,7 +362,7 @@ https://{host}/about.json
 | Discourse Translator             | https://meta.discourse.org/t/discourse-translator/32630              | https://github.com/discourse/discourse-translator             | yes      |
 | discourse-user-notes             |                                                                      | https://github.com/discourse/discourse-user-notes             | yes      |
 | discourse-data-explorer          | https://meta.discourse.org/t/discourse-data-explorer/32566           | https://github.com/discourse/discourse-data-explorer          | -------- |
-| discourse-topic-voting | https://meta.discourse.org/t/discourse-topic-voting/40121 | https://github.com/discourse/discourse-topic-voting | -------- |
+| discourse-topic-voting           | https://meta.discourse.org/t/discourse-topic-voting/40121            | https://github.com/discourse/discourse-topic-voting           | -------- |
 
 ## 数据库操作
 
@@ -456,7 +571,7 @@ enabled_site_setting :profile_link_enabled
 add_admin_route 'profile_link.title', 'profile_link', use_new_show_route: true
 ```
 
-除此以外还需要初始化注册
+除此以外还需要初始化注册（非必须）
 
 ```
 after_initialize do
@@ -512,6 +627,35 @@ export default class ProfileLink extends Component {
 SiteSetting.profile_link_label
 ```
 
+这里再给一个最新版的配置信息 demo,获取配置信息一致，这种方式应该是最新推荐的。
+
+settings.yml
+
+```
+category_resources:
+  category_resources_enabled:
+    default: true
+    client: true
+    description: "启用分类资源边栏功能"
+```
+
+client.en.yml
+
+```
+en:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          category_resources: "Category Resources"
+  js:
+    category_resources:
+      title: Category Resources
+
+```
+
+不用再在 plugin.rb 中初始化配置信息。
+
 ### 样式
 
 在`assets/stylesheets/common`目录下增加自己插件的样式信息，要求为 scss
@@ -560,6 +704,51 @@ export default class ProfileLink extends Component {
 }
 
 ```
+以上写法为历史写法，可能存在告警，最新推荐将组件和模板写在一个gjs文件中,例如：
+```
+import Component from "@glimmer/component";
+import { inject as service } from "@ember/service";
+import { hbs } from "ember-cli-htmlbars";
+
+
+export default class CategoryResources extends Component {
+    @service router;
+    @service siteSettings;
+
+    constructor() {
+        super(...arguments);
+    }
+
+    get categoryResources() {
+        
+        try {
+            ....
+        } catch (error) {
+            console.error("...", error);
+            return [];
+        }
+    }
+
+
+
+    <template>
+          <div class="resources-grid">
+                        {{#each this.categoryResources as |resource|}}
+                            <a href={{resource.url}} 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="resource-item"
+                               title={{resource.description}}>
+                                {{resource.name}}
+                            </a>
+                        {{/each}}
+                    </div>
+    </template>
+} 
+
+```
+
+
 
 **前端注入点**
 
