@@ -762,6 +762,8 @@ link.hbs 例如：
 <ProfileLink @user={{@outletArgs.user}}/>
 ```
 
+在源码中能发现更多的注入点：https://github.com/search?q=repo%3Adiscourse%2Fdiscourse+PluginOutlet+%40name%3D&type=code
+
 ### 后端开发
 
 在 Discourse 插件开发中，使用 Engine 定义自己插件空间，隔离一些信息。
