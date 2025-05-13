@@ -104,6 +104,51 @@ chmod 700 containers
 ./launcher bootstrap app
 ```
 
+### 数据库定义端口和密码
+直接修改templates/redis.template.yml
+```
+params:
+  redis_io_threads: "1"
+  redis_port: "6379"
+  redis_password: "*******"
+
+run: 
+    #..... 
+    # Add port configuration
+  - replace:
+      filename: "/etc/redis/redis.conf"
+      from: /^port.*$/
+      to: "port $redis_port"
+
+  # Add password configuration  
+  - replace:
+      filename: "/etc/redis/redis.conf"
+      from: /^# requirepass.*$/
+      to: "requirepass $redis_password"
+```
+
+直接修改templates/postgres.template.yml
+
+```
+params:
+  db_port: "5432"
+
+run:
+  #......
+  # 配置端口
+  - replace:
+      filename: "/etc/postgresql/15/main/postgresql.conf"
+      from: /#?port *=.*/
+      to: "port = $db_port"
+```
+
+
+进去容器内部修改账户密码
+```
+ su postgres -c "psql $db_name -c \"ALTER USER postgres WITH PASSWORD 'your_new_password'\";
+```
+
+
 ## 官方 discourse 使用
 
 ```
@@ -387,6 +432,27 @@ UPDATE user_emails SET email = 'user@example.com', updated_at = NOW() WHERE user
 gzip gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz
 tar -zczvf gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz ./*
 ```
+
+
+2.导出/导入所有站点设置
+
+[参考文档](https://meta.discourse.org/t/administrative-bulk-operations/118349)
+
+```
+rake site_settings:export > saved_settings.yml
+
+rake site_settings:import < saved_settings.yml
+
+```
+
+3.导入/导出类别
+```
+rake export:category_structure
+rake import:file["category-structure-export-2025-05-09-025650.json"]
+
+```
+
+
 
 ## 主题开发
 
