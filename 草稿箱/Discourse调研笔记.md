@@ -315,6 +315,23 @@ hooks:
 
 ```
 
+### 全局速率限制设置
+
+关注速率限制有3个地方: 
+1. 是web.ratelimited.template.yml 
+2. [环境变量](https://meta.discourse.org/t/available-settings-for-global-rate-limits-and-throttling/78612/1) 
+3. 网站 `/admin/config/rate-limits`
+
+环境变量
+```
+  DISCOURSE_MAX_REQS_PER_IP_MODE: none
+  DISCOURSE_MAX_ADMIN_API_REQS_PER_MINUTE: 600000
+
+```
+
+
+
+
 ## bitnami/discourse 使用
 
 文档可以查看[ bitnami/discourse](https://hub.docker.com/r/bitnami/discourse)
