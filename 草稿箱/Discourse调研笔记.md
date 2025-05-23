@@ -401,6 +401,11 @@ https://{host}/about.json
 这个功能默认是存在的，只是需要达到一个计算分数，具体详见：https://meta.discourse.org/t/summarize-this-topic-button/132790/17
 ![Img](/images/Discourse调研笔记.md/img-20250418164101.png)
 
+3.外链新打开tab页
+![Img](/images/Discourse调研笔记.md/img-20250523145930.png)
+
+Default other external links in new tab
+
 ## 预安装插件列表
 
 | 名称                             | 文档                                                                 | 仓库                                                          | 是否安装 |
@@ -468,8 +473,6 @@ rake export:category_structure
 rake import:file["category-structure-export-2025-05-09-025650.json"]
 
 ```
-
-
 
 ## 主题开发
 
@@ -556,6 +559,25 @@ export default class ProfileCustomLink extends Component {
 
 ```
 
+## 主题脚本
+
+可以都过脚本来插入按钮，隐藏功能，由于discourse前端路由问题，可以通过plugin api来修改部分内容。
+
+```
+import { apiInitializer } from "discourse/lib/api";
+
+export default apiInitializer((api) => {
+  api.onPageChange(() =>{
+      customFuntion();
+  });
+   
+});
+
+```
+
+onPageChange 是在页面切换后触发。更多api [详见连接](https://github.com/discourse/discourse/blob/5c041a14ba810814038b694c6ceb3650dd6827c2/app/assets/javascripts/discourse/app/lib/plugin-api.gjs#L1077)
+
+
 ## 插件开发
 
 插件和主题的 components 有点类似，但部分使用又有点区别，可以首先参考[discourse-plugin-skeleton](https://github.com/discourse/discourse-plugin-skeleton) 骨架项目创建一个插件项目。
@@ -641,7 +663,7 @@ plugins:
 
 ```
 
-官网文档 plugins 为 plugin name ，但是国际化中还需要额外增加信息，我看很多插件都是使用 plugins，目前测试没有问题。
+官网文档 plugins 为 plugin name ，但是国际化中还需要额外增加信息，我看很多插件都是使用 plugins，目前~~测试没有问题~~，存在在管理页面无法打开插件的设置页面，必须点设置才能修改。
 
 如果想让前端获取该配置信息，一定要增加`client: true`
 
@@ -650,8 +672,6 @@ plugins:
 ```
 enabled_site_setting :profile_link_enabled
 
-# 在 Discourse 管理界面中添加设置
-add_admin_route 'profile_link.title', 'profile_link', use_new_show_route: true
 ```
 
 除此以外还需要初始化注册（非必须）
@@ -670,15 +690,6 @@ after_initialize do
 end
 ```
 
-最后为了能在插件页面设置配置信息再添加路由
-
-```
-Discourse::Application.routes.append do
-  get '/admin/plugins/profile_link' => 'admin/plugins#index', constraints: StaffConstraint.new
-end
-
-
-```
 
 前端页面获取配置信息
 js 中
@@ -710,7 +721,7 @@ export default class ProfileLink extends Component {
 SiteSetting.profile_link_label
 ```
 
-这里再给一个最新版的配置信息 demo,获取配置信息一致，这种方式应该是最新推荐的。
+这里再给一个最新版的配置信息 demo,获取配置信息一致，这种方式应该是最新推荐的，使用这种方式支持在管理页面直接访问设置页面。
 
 settings.yml
 
