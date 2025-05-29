@@ -665,7 +665,7 @@ plugins:
 
 官网文档 plugins 为 plugin name ，但是国际化中还需要额外增加信息，我看很多插件都是使用 plugins，目前~~测试没有问题~~，存在在管理页面无法打开插件的设置页面，必须点设置才能修改。
 
-如果想让前端获取该配置信息，一定要增加`client: true`
+如果想让前端获取该配置信息，一定要增加`client: true`，布尔值需要添加默认值
 
 同时还需要在 plugin.rb 中启用，使用如下：
 
@@ -696,7 +696,7 @@ js 中
 
 ```
 import Component from "@glimmer/component";
-import { service } from '@ember/service';
+import { inject as service } from "@ember/service";
 
 export default class ProfileLink extends Component {
     @service siteSettings;
