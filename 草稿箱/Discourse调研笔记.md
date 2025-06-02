@@ -394,15 +394,15 @@ https://{host}/about.json
 ## 网站设置
 
 1.删除顶部 getting started
-![Img](/images/Discourse调研笔记.md/img-20250326100823.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250326100823.png)
 
 2.Summarize this topic button
 
 这个功能默认是存在的，只是需要达到一个计算分数，具体详见：https://meta.discourse.org/t/summarize-this-topic-button/132790/17
-![Img](/images/Discourse调研笔记.md/img-20250418164101.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250418164101.png)
 
 3.外链新打开tab页
-![Img](/images/Discourse调研笔记.md/img-20250523145930.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250523145930.png)
 
 Default other external links in new tab
 
@@ -501,7 +501,7 @@ api_keys:
 
 使用命令：`discourse_theme watch .\discourse-redditish-theme\`
 
-![Img](/images/Discourse调研笔记.md/img-20250325144749.png)
+![Img](https://static.trumandu.top/yank-note-picgo-img-20250325144749.png)
 
 ### components 开发
 
