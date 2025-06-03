@@ -104,30 +104,34 @@ chmod 700 containers
 ./launcher bootstrap app
 ```
 
-### 数据库定义端口和密码
-直接修改templates/redis.template.yml
+#### 搭建单独 DB 服务
+
+如果需要 db 和应用分离的话，那么新增一个 data.yml 模板。数据库定义端口和密码可以通过修改 redis.template.yml 和 postgres.template.yml 实现。
+
+直接修改 templates/redis.template.yml
+
 ```
 params:
   redis_io_threads: "1"
   redis_port: "6379"
   redis_password: "*******"
 
-run: 
-    #..... 
+run:
+    #.....
     # Add port configuration
   - replace:
       filename: "/etc/redis/redis.conf"
       from: /^port.*$/
       to: "port $redis_port"
 
-  # Add password configuration  
+  # Add password configuration
   - replace:
       filename: "/etc/redis/redis.conf"
       from: /^# requirepass.*$/
       to: "requirepass $redis_password"
 ```
 
-直接修改templates/postgres.template.yml
+直接修改 templates/postgres.template.yml
 
 ```
 params:
@@ -142,12 +146,72 @@ run:
       to: "port = $db_port"
 ```
 
-
 进去容器内部修改账户密码
+
 ```
  su postgres -c "psql $db_name -c \"ALTER USER postgres WITH PASSWORD 'your_new_password'\";
 ```
 
+data.yml 配置文件
+
+```
+# A container for all things Data, be sure to set a secret password for
+# discourse account, SOME_SECRET is just an example
+#
+
+templates:
+  - "templates/postgres.template.yml"
+  - "templates/redis.template.yml"
+
+# any extra arguments for Docker?
+# docker_args:
+
+params:
+  db_default_text_search_config: "pg_catalog.english"
+
+  ## Set db_shared_buffers to a max of 25% of the total memory.
+  ## will be set automatically by bootstrap based on detected RAM, or you can override
+  #db_shared_buffers: "256MB"
+
+  ## can improve sorting performance, but adds memory usage per-connection
+  #db_work_mem: "40MB"
+
+expose:
+  - "8432:8432"   # http
+  - "8379:8379" # https
+
+env:
+  # ensure locale exists in container, you may need to install it
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US.UTF-8
+
+  #......省略
+
+volumes:
+  - volume:
+        host: /var/discourse/shared/data
+        guest: /shared
+  - volume:
+        host: /var/discourse/shared/data/log/var-log
+        guest: /var/log
+
+# TODO: SOME_SECRET to a password for the discourse user
+hooks:
+  after_postgres:
+    - exec:
+        stdin: |
+          alter user discourse with password 'SOME_SECRET';
+        cmd: su - postgres -c 'psql discourse'
+
+        raise_on_fail: false
+```
+
+基于 data.yml 模板搭建 db 容器
+
+```
+./launcher rebuild db
+```
 
 ## 官方 discourse 使用
 
@@ -317,20 +381,19 @@ hooks:
 
 ### 全局速率限制设置
 
-关注速率限制有3个地方: 
-1. 是web.ratelimited.template.yml 
-2. [环境变量](https://meta.discourse.org/t/available-settings-for-global-rate-limits-and-throttling/78612/1) 
+关注速率限制有 3 个地方:
+
+1. 是 web.ratelimited.template.yml
+2. [环境变量](https://meta.discourse.org/t/available-settings-for-global-rate-limits-and-throttling/78612/1)
 3. 网站 `/admin/config/rate-limits`
 
 环境变量
+
 ```
   DISCOURSE_MAX_REQS_PER_IP_MODE: none
   DISCOURSE_MAX_ADMIN_API_REQS_PER_MINUTE: 600000
 
 ```
-
-
-
 
 ## bitnami/discourse 使用
 
@@ -401,7 +464,7 @@ https://{host}/about.json
 这个功能默认是存在的，只是需要达到一个计算分数，具体详见：https://meta.discourse.org/t/summarize-this-topic-button/132790/17
 ![Img](https://static.trumandu.top/yank-note-picgo-img-20250418164101.png)
 
-3.外链新打开tab页
+3.外链新打开 tab 页
 ![Img](https://static.trumandu.top/yank-note-picgo-img-20250523145930.png)
 
 Default other external links in new tab
@@ -455,7 +518,6 @@ gzip gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz
 tar -zczvf gamer-community-2025-04-09-052308-v20250321143553-1.tar.gz ./*
 ```
 
-
 2.导出/导入所有站点设置
 
 [参考文档](https://meta.discourse.org/t/administrative-bulk-operations/118349)
@@ -468,11 +530,39 @@ rake site_settings:import < saved_settings.yml
 ```
 
 3.导入/导出类别
+
 ```
 rake export:category_structure
 rake import:file["category-structure-export-2025-05-09-025650.json"]
 
 ```
+
+## 源码开发
+
+本文是在wsl环境中配置，参考[官方文档](https://meta.discourse.org/t/install-discourse-for-development-using-docker/102009)。
+
+```
+git clone https://github.com/discourse/discourse.git
+cd discourse
+```
+
+在开始前根据自己环境选择是否修改镜像仓库地址和增加代理，由于在公司内部网络限制，因此我在开始前有做以上两个操作，代理地址是添加在docker run中。
+
+```
+d/boot_dev --init
+    # wait while:
+    #   - dependencies are installed,
+    #   - the database is migrated, and
+    #   - an admin user is created (you'll need to interact with this)
+
+# In one terminal:
+d/rails s
+
+# And in a separate terminal
+d/ember-cli
+```
+
+
 
 ## 主题开发
 
@@ -561,7 +651,7 @@ export default class ProfileCustomLink extends Component {
 
 ## 主题脚本
 
-可以都过脚本来插入按钮，隐藏功能，由于discourse前端路由问题，可以通过plugin api来修改部分内容。
+可以都过脚本来插入按钮，隐藏功能，由于 discourse 前端路由问题，可以通过 plugin api 来修改部分内容。
 
 ```
 import { apiInitializer } from "discourse/lib/api";
@@ -570,13 +660,12 @@ export default apiInitializer((api) => {
   api.onPageChange(() =>{
       customFuntion();
   });
-   
+
 });
 
 ```
 
-onPageChange 是在页面切换后触发。更多api [详见连接](https://github.com/discourse/discourse/blob/5c041a14ba810814038b694c6ceb3650dd6827c2/app/assets/javascripts/discourse/app/lib/plugin-api.gjs#L1077)
-
+onPageChange 是在页面切换后触发。更多 api [详见连接](https://github.com/discourse/discourse/blob/5c041a14ba810814038b694c6ceb3650dd6827c2/app/assets/javascripts/discourse/app/lib/plugin-api.gjs#L1077)
 
 ## 插件开发
 
@@ -690,7 +779,6 @@ after_initialize do
 end
 ```
 
-
 前端页面获取配置信息
 js 中
 
@@ -798,7 +886,9 @@ export default class ProfileLink extends Component {
 }
 
 ```
-以上写法为历史写法，可能存在告警，最新推荐将组件和模板写在一个gjs文件中,例如：
+
+以上写法为历史写法，可能存在告警，最新推荐将组件和模板写在一个 gjs 文件中,例如：
+
 ```
 import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
@@ -814,7 +904,7 @@ export default class CategoryResources extends Component {
     }
 
     get categoryResources() {
-        
+
         try {
             ....
         } catch (error) {
@@ -828,9 +918,9 @@ export default class CategoryResources extends Component {
     <template>
           <div class="resources-grid">
                         {{#each this.categoryResources as |resource|}}
-                            <a href={{resource.url}} 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
+                            <a href={{resource.url}}
+                               target="_blank"
+                               rel="noopener noreferrer"
                                class="resource-item"
                                title={{resource.description}}>
                                 {{resource.name}}
@@ -838,11 +928,9 @@ export default class CategoryResources extends Component {
                         {{/each}}
                     </div>
     </template>
-} 
+}
 
 ```
-
-
 
 **前端注入点**
 
