@@ -177,8 +177,8 @@ params:
   #db_work_mem: "40MB"
 
 expose:
-  - "8432:8432"   # http
-  - "8379:8379" # https
+  - "5432:5432"   # http
+  - "6379:6379" # https
 
 env:
   # ensure locale exists in container, you may need to install it
