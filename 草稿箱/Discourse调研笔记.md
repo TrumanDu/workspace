@@ -649,7 +649,7 @@ export default class ProfileCustomLink extends Component {
 
 ```
 
-## 主题脚本
+### 主题脚本
 
 可以都过脚本来插入按钮，隐藏功能，由于 discourse 前端路由问题，可以通过 plugin api 来修改部分内容。
 
@@ -666,6 +666,15 @@ export default apiInitializer((api) => {
 ```
 
 onPageChange 是在页面切换后触发。更多 api [详见连接](https://github.com/discourse/discourse/blob/5c041a14ba810814038b694c6ceb3650dd6827c2/app/assets/javascripts/discourse/app/lib/plugin-api.gjs#L1077)
+
+
+### 打包
+
+进去主题目录，压缩文件不含包文件夹名，还需要排除git目录。
+```
+tar --exclude='.git' --exclude='output.zip' -a -cf output.zip .
+```
+
 
 ## 插件开发
 
