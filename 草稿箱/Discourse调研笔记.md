@@ -671,9 +671,6 @@ onPageChange 是在页面切换后触发。更多 api [详见连接](https://git
 ### 打包
 
 进去主题目录，压缩文件不含包文件夹名，还需要排除git目录。
-```
-tar --exclude='.git' --exclude='output.zip' -a -cf output.zip .
-```
 
 
 ## 插件开发
