@@ -686,7 +686,7 @@ get mappings() {
 
 更多用法详见[官网文档](https://meta.discourse.org/t/add-settings-to-your-discourse-theme/82557?silent=true)
 
-
+在`settings.yml`中不需要声明`client: true`
 
 ### 打包
 
