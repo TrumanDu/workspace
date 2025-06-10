@@ -668,6 +668,26 @@ export default apiInitializer((api) => {
 onPageChange 是在页面切换后触发。更多 api [详见连接](https://github.com/discourse/discourse/blob/5c041a14ba810814038b694c6ceb3650dd6827c2/app/assets/javascripts/discourse/app/lib/plugin-api.gjs#L1077)
 
 
+### 配置信息
+
+在主题中获取配置信息和插件存在差异，主题配置信息在`settings.yml` 文件中，在template和js中可以直接获取`settings`对象，不需要导入。
+
+template中例子：
+```
+{{log "Theme settings:" settings}}
+```
+
+js代码块中例子：
+```
+get mappings() {
+        console.log("Bullet points mappings:", settings.bullet_points_mappings);
+    }
+```
+
+更多用法详见[官网文档](https://meta.discourse.org/t/add-settings-to-your-discourse-theme/82557?silent=true)
+
+
+
 ### 打包
 
 进去主题目录，压缩文件不含包文件夹名，还需要排除git目录。
