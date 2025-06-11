@@ -670,7 +670,7 @@ onPageChange 是在页面切换后触发。更多 api [详见连接](https://git
 
 ### 配置信息
 
-在主题中获取配置信息和插件存在差异，主题配置信息在`settings.yml` 文件中，在template和js中可以直接获取`settings`对象，不需要导入。
+在主题中获取配置信息和插件存在差异，主题配置信息在`settings.yml` 文件中，在template和gjs中可以直接获取`settings`对象，不需要导入。
 
 template中例子：
 ```
@@ -686,7 +686,7 @@ get mappings() {
 
 更多用法详见[官网文档](https://meta.discourse.org/t/add-settings-to-your-discourse-theme/82557?silent=true)
 
-在`settings.yml`中不需要声明`client: true`
+在`settings.yml`中不需要声明`client: true`, settings信息测试仅能在gjs文件中使用。
 
 ### 打包
 
